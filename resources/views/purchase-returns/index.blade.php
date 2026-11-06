@@ -49,9 +49,9 @@
         </div>
         @if ($eligiblePurchases->hasPages())
             <nav class="pagination" aria-label="Halaman pembelian yang bisa diretur">
-                @if ($eligiblePurchases->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $eligiblePurchases->previousPageUrl() }}">← Sebelumnya</a> @endif
+                @if ($eligiblePurchases->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $eligiblePurchases->previousPageUrl() }}"><x-icon name="chevron-back-outline" /> Sebelumnya</a> @endif
                 <span>Halaman {{ $eligiblePurchases->currentPage() }} dari {{ $eligiblePurchases->lastPage() }}</span>
-                @if ($eligiblePurchases->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $eligiblePurchases->nextPageUrl() }}">Berikutnya →</a> @endif
+                @if ($eligiblePurchases->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $eligiblePurchases->nextPageUrl() }}">Berikutnya <x-icon name="chevron-forward-outline" /></a> @endif
             </nav>
         @endif
     @endif
@@ -199,9 +199,9 @@
         @endforeach
         @if ($returns->hasPages())
             <nav class="pagination" aria-label="Halaman riwayat retur pembelian">
-                @if ($returns->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $returns->previousPageUrl() }}">← Sebelumnya</a> @endif
+                @if ($returns->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $returns->previousPageUrl() }}"><x-icon name="chevron-back-outline" /> Sebelumnya</a> @endif
                 <span>Halaman {{ $returns->currentPage() }} dari {{ $returns->lastPage() }}</span>
-                @if ($returns->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $returns->nextPageUrl() }}">Berikutnya →</a> @endif
+                @if ($returns->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $returns->nextPageUrl() }}">Berikutnya <x-icon name="chevron-forward-outline" /></a> @endif
             </nav>
         @endif
     @endif

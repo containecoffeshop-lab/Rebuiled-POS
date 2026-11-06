@@ -255,9 +255,9 @@
         @endforeach
         @if ($expenses->hasPages())
             <nav class="pagination" aria-label="Halaman pengeluaran">
-                @if ($expenses->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $expenses->previousPageUrl() }}">← Sebelumnya</a> @endif
+                @if ($expenses->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $expenses->previousPageUrl() }}"><x-icon name="chevron-back-outline" /> Sebelumnya</a> @endif
                 <span>Halaman {{ $expenses->currentPage() }} dari {{ $expenses->lastPage() }}</span>
-                @if ($expenses->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $expenses->nextPageUrl() }}">Berikutnya →</a> @endif
+                @if ($expenses->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $expenses->nextPageUrl() }}">Berikutnya <x-icon name="chevron-forward-outline" /></a> @endif
             </nav>
         @endif
     @endif

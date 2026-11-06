@@ -274,9 +274,9 @@
 
     @if ($reportData['rows']->hasPages())
         <nav class="pagination" aria-label="Halaman laporan">
-            @if ($reportData['rows']->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $reportData['rows']->previousPageUrl() }}">← Sebelumnya</a> @endif
+            @if ($reportData['rows']->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $reportData['rows']->previousPageUrl() }}"><x-icon name="chevron-back-outline" /> Sebelumnya</a> @endif
             <span>Halaman {{ $reportData['rows']->currentPage() }} dari {{ $reportData['rows']->lastPage() }}</span>
-            @if ($reportData['rows']->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $reportData['rows']->nextPageUrl() }}">Berikutnya →</a> @endif
+            @if ($reportData['rows']->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $reportData['rows']->nextPageUrl() }}">Berikutnya <x-icon name="chevron-forward-outline" /></a> @endif
         </nav>
     @endif
 </section>

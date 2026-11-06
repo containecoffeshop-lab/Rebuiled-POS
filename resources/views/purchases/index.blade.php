@@ -333,9 +333,9 @@
         @endforeach
         @if ($purchases->hasPages())
             <nav class="pagination" aria-label="Halaman riwayat pembelian">
-                @if ($purchases->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $purchases->previousPageUrl() }}">← Sebelumnya</a> @endif
+                @if ($purchases->previousPageUrl()) <a class="button button-secondary button-small" href="{{ $purchases->previousPageUrl() }}"><x-icon name="chevron-back-outline" /> Sebelumnya</a> @endif
                 <span>Halaman {{ $purchases->currentPage() }} dari {{ $purchases->lastPage() }}</span>
-                @if ($purchases->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $purchases->nextPageUrl() }}">Berikutnya →</a> @endif
+                @if ($purchases->nextPageUrl()) <a class="button button-secondary button-small" href="{{ $purchases->nextPageUrl() }}">Berikutnya <x-icon name="chevron-forward-outline" /></a> @endif
             </nav>
         @endif
     @endif

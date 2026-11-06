@@ -7,10 +7,11 @@
     <div class="alert" role="status">Memesan untuk <strong>Meja {{ $diningTable->number }}</strong>. Pesanan dari QR ini akan langsung terkait dengan meja tersebut.</div>
 @endif
 <section class="hero">
+    <x-icon name="cafe-outline" class="hero-decoration" />
     <p class="eyebrow">Kopi baik, hari lebih ringan</p>
     <h1>{{ filled($storeSettings['hero_title'] ?? null) ? $storeSettings['hero_title'] : 'Temukan rasa yang pas untuk hari ini.' }}</h1>
     <p>{{ filled($storeSettings['hero_description'] ?? null) ? $storeSettings['hero_description'] : 'Pilih menu favoritmu, sampaikan catatan, lalu pesanan langsung masuk ke meja kasir.' }}</p>
-    <span class="hero-note">✦ Dibuat segar setelah dipesan <span>·</span> Bayar di kasir</span>
+    <span class="hero-note"><x-icon name="sparkles-outline" /> Dibuat segar setelah dipesan <span>·</span> Bayar di kasir</span>
 </section>
 
 <div class="section-heading">
@@ -28,6 +29,7 @@
     <form class="search-form" method="GET" action="{{ route('home') }}" data-live-menu-search>
         @if (request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
         <label class="visually-hidden" for="q">Cari menu</label>
+        <x-icon name="search-outline" class="search-icon" />
         <input class="field" id="q" name="q" type="search" value="{{ request('q') }}" placeholder="Cari nama menu..." autocomplete="off">
     </form>
 </div>
@@ -40,6 +42,7 @@
             <p class="status-tag pending cart-open-button">Kasir belum membuka shift. Menu tetap dapat ditambahkan ke keranjang, tetapi pesanan belum dapat dikirim.</p>
         @endunless
         <button class="button button-secondary cart-open-button" type="button" data-open-cart aria-controls="customer-cart">
+            <x-icon name="cart-outline" />
             Keranjang (<span data-cart-count>0</span>)
         </button>
         <section>
@@ -50,7 +53,9 @@
                     <div class="menu-grid">
                 @foreach ($categoryMenus as $menu)
                     @php
-                        $icon = str_contains(strtolower($menu->name), 'kopi') || str_contains(strtolower($menu->name), 'americano') || str_contains(strtolower($menu->name), 'latte') ? '☕' : (str_contains(strtolower($menu->name), 'roti') || str_contains(strtolower($menu->name), 'croissant') ? '🥐' : '🍵');
+                        $icon = str_contains(strtolower($menu->name), 'kopi') || str_contains(strtolower($menu->name), 'americano') || str_contains(strtolower($menu->name), 'latte')
+                            ? 'cafe-outline'
+                            : (str_contains(strtolower($menu->name), 'roti') || str_contains(strtolower($menu->name), 'croissant') ? 'fast-food-outline' : 'restaurant-outline');
                         $availableServings = $inventoryAvailability->get($menu->id);
                         $menuVariantOptions = $menu->variants->where('is_active', true)->map(fn ($variant) => [
                             'id' => $variant->id,
@@ -64,7 +69,7 @@
                             @if ($menu->image_path)
                                 <img src="{{ asset($menu->image_path) }}" alt="" loading="lazy">
                             @else
-                                {{ $icon }}
+                                <x-icon :name="$icon" class="menu-placeholder-icon" />
                             @endif
                         </div>
                         <span class="menu-category">{{ $menu->category->name }}{{ $menu->is_bundle ? ' · Paket' : '' }}</span>
@@ -89,7 +94,7 @@
                     @foreach ($categoryProducts as $variant)
                         @php $availableProductStock = $productStock->get($variant->id, 0); @endphp
                         <article class="menu-card" data-menu-card data-item-type="product" data-item-id="{{ $variant->id }}" data-item-name="{{ $variant->product->name }} · {{ $variant->label }}" data-item-price="{{ $variant->selling_price }}" data-item-barcode="{{ $variant->barcode }}">
-                            <div class="menu-art" aria-hidden="true">🛍️</div>
+                            <div class="menu-art" aria-hidden="true"><x-icon name="bag-handle-outline" class="menu-placeholder-icon" /></div>
                             <span class="menu-category">{{ $variant->product->category->name }} · {{ $variant->unit->name }}</span>
                             <h3>{{ $variant->product->name }} · {{ $variant->label }}</h3>
                             <p class="menu-description">{{ $variant->product->description ?: 'Produk pilihan dari toko.' }}</p>

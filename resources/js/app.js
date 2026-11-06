@@ -307,7 +307,7 @@ document.querySelectorAll('[data-cart-root]').forEach((root) => {
                         <tr>
                             <td>${escapeHtml(item.name)}</td>
                             <td>${currency.format(item.price)}</td>
-                            <td><div class="qty-control"><button class="qty-button" type="button" data-cart-key="${escapeHtml(`${item.type}:${item.id}:${item.menuVariantId || 0}`)}" data-change="-1" aria-label="Kurangi ${escapeHtml(item.name)}">−</button><span>${item.quantity}</span><button class="qty-button" type="button" data-cart-key="${escapeHtml(`${item.type}:${item.id}:${item.menuVariantId || 0}`)}" data-change="1" aria-label="Tambah ${escapeHtml(item.name)}">+</button></div></td>
+                            <td><div class="qty-control"><button class="qty-button" type="button" data-cart-key="${escapeHtml(`${item.type}:${item.id}:${item.menuVariantId || 0}`)}" data-change="-1" aria-label="Kurangi ${escapeHtml(item.name)}"><ion-icon name="remove-circle-outline" aria-hidden="true"></ion-icon></button><span>${item.quantity}</span><button class="qty-button" type="button" data-cart-key="${escapeHtml(`${item.type}:${item.id}:${item.menuVariantId || 0}`)}" data-change="1" aria-label="Tambah ${escapeHtml(item.name)}"><ion-icon name="add-circle-outline" aria-hidden="true"></ion-icon></button></div></td>
                             <td>${currency.format(item.price * item.quantity)}</td>
                         </tr>`).join('')}</tbody>
                 </table>`
@@ -657,7 +657,7 @@ document.querySelectorAll('[data-employee-consumption]').forEach((root) => {
             ? `<table class="cashier-cart-table"><thead><tr><th>Menu</th><th>Qty</th><th>HPP</th></tr></thead><tbody>${items.map((item) => `
                 <tr>
                     <td>${escapeHtml(item.name)}</td>
-                    <td><div class="qty-control"><button class="qty-button" type="button" data-employee-key="${escapeHtml(item.key)}" data-employee-change="-1">−</button><span>${item.quantity}</span><button class="qty-button" type="button" data-employee-key="${escapeHtml(item.key)}" data-employee-change="1">+</button></div></td>
+                    <td><div class="qty-control"><button class="qty-button" type="button" data-employee-key="${escapeHtml(item.key)}" data-employee-change="-1" aria-label="Kurangi ${escapeHtml(item.name)}"><ion-icon name="remove-circle-outline" aria-hidden="true"></ion-icon></button><span>${item.quantity}</span><button class="qty-button" type="button" data-employee-key="${escapeHtml(item.key)}" data-employee-change="1" aria-label="Tambah ${escapeHtml(item.name)}"><ion-icon name="add-circle-outline" aria-hidden="true"></ion-icon></button></div></td>
                     <td>${item.hpp === null ? 'Belum diketahui' : currency.format(item.hpp * item.quantity)}</td>
                 </tr>`).join('')}</tbody></table>`
             : '<p class="cart-empty">Pilih menu untuk mulai.</p>';
