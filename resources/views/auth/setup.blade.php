@@ -10,6 +10,12 @@
         <p>Akun ini hanya dapat dibuat sekali dan diperlukan untuk membuka shift kasir serta mengatur menu. Kata sandi minimal 10 karakter.</p>
         <form method="POST" action="{{ route('setup.store') }}">
             @csrf
+            @if (config('app.initial_setup_token'))
+                <div class="field-group">
+                    <label class="field-label" for="setup_token">Kode setup sekali pakai</label>
+                    <input class="field" id="setup_token" name="setup_token" type="password" autocomplete="one-time-code" required>
+                </div>
+            @endif
             <div class="field-group">
                 <label class="field-label" for="name">Nama</label>
                 <input class="field" id="name" name="name" value="{{ old('name') }}" maxlength="120" autocomplete="name" required autofocus>

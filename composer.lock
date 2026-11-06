@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53b5d56b3b7e3cbac1713e68c8850f6c",
+    "content-hash": "61c8c58e8fc4c6edc1664f262f40f5bc",
     "packages": [
         {
             "name": "brick/math",
@@ -3598,16 +3598,16 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.7.1",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d"
+                "reference": "feb1edf4e546af3b85c5caebe8359a20db230ca3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/f3202fa1b5097b0af062dc978b32ecf63404e31d",
-                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/feb1edf4e546af3b85c5caebe8359a20db230ca3",
+                "reference": "feb1edf4e546af3b85c5caebe8359a20db230ca3",
                 "shasum": ""
             },
             "require": {
@@ -3620,7 +3620,7 @@
                     "name": "symfony/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.7-dev"
+                    "dev-main": "3.8-dev"
                 }
             },
             "autoload": {
@@ -3645,7 +3645,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.7.1"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -3665,8 +3665,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-05T06:23:12+00:00",
-            "published-time": "2026-06-27T21:46:34+00:00"
+            "time": "2026-09-16T14:15:10+00:00",
+            "published-time": "2026-11-04T11:25:34+00:00"
         },
         {
             "name": "symfony/error-handler",
@@ -3839,16 +3839,16 @@
         },
         {
             "name": "symfony/event-dispatcher-contracts",
-            "version": "v3.7.1",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher-contracts.git",
-                "reference": "c7de7a00ffb67842132da02ea92988a39ccd9f4e"
+                "reference": "658e29751424da3ef4758c60f769e59d1b2981eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher-contracts/zipball/c7de7a00ffb67842132da02ea92988a39ccd9f4e",
-                "reference": "c7de7a00ffb67842132da02ea92988a39ccd9f4e",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher-contracts/zipball/658e29751424da3ef4758c60f769e59d1b2981eb",
+                "reference": "658e29751424da3ef4758c60f769e59d1b2981eb",
                 "shasum": ""
             },
             "require": {
@@ -3862,7 +3862,7 @@
                     "name": "symfony/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.7-dev"
+                    "dev-main": "3.8-dev"
                 }
             },
             "autoload": {
@@ -3895,7 +3895,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/event-dispatcher-contracts/tree/v3.7.1"
+                "source": "https://github.com/symfony/event-dispatcher-contracts/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -3915,8 +3915,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-05T06:23:12+00:00",
-            "published-time": "2026-06-27T21:46:35+00:00"
+            "time": "2026-09-16T14:15:10+00:00",
+            "published-time": "2026-11-04T11:25:36+00:00"
         },
         {
             "name": "symfony/finder",
@@ -3989,16 +3989,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v7.4.22",
+            "version": "v7.4.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "63eda1d0c4de229d6b3e825709e49dd5c149699a"
+                "reference": "7fb73cffa06e2bcc2cb523fcccb1e8174106b206"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/63eda1d0c4de229d6b3e825709e49dd5c149699a",
-                "reference": "63eda1d0c4de229d6b3e825709e49dd5c149699a",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/7fb73cffa06e2bcc2cb523fcccb1e8174106b206",
+                "reference": "7fb73cffa06e2bcc2cb523fcccb1e8174106b206",
                 "shasum": ""
             },
             "require": {
@@ -4047,7 +4047,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v7.4.22"
+                "source": "https://github.com/symfony/http-foundation/tree/v7.4.23"
             },
             "funding": [
                 {
@@ -4067,21 +4067,21 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-27T13:26:03+00:00",
-            "published-time": "2026-10-28T18:20:39+00:00"
+            "time": "2026-11-04T08:27:22+00:00",
+            "published-time": "2026-11-04T11:28:53+00:00"
         },
         {
             "name": "symfony/http-kernel",
-            "version": "v7.4.22",
+            "version": "v7.4.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-kernel.git",
-                "reference": "87e727b33983238d3f2ea50f9f62265499ca1a6d"
+                "reference": "94c57f4c5c45a311d244a0aeadb72b14ee41d25d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/87e727b33983238d3f2ea50f9f62265499ca1a6d",
-                "reference": "87e727b33983238d3f2ea50f9f62265499ca1a6d",
+                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/94c57f4c5c45a311d244a0aeadb72b14ee41d25d",
+                "reference": "94c57f4c5c45a311d244a0aeadb72b14ee41d25d",
                 "shasum": ""
             },
             "require": {
@@ -4167,7 +4167,7 @@
             "description": "Provides a structured process for converting a Request into a Response",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-kernel/tree/v7.4.22"
+                "source": "https://github.com/symfony/http-kernel/tree/v7.4.23"
             },
             "funding": [
                 {
@@ -4187,8 +4187,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-28T18:18:28+00:00",
-            "published-time": "2026-10-28T18:21:03+00:00"
+            "time": "2026-11-04T11:26:18+00:00",
+            "published-time": "2026-11-04T11:27:47+00:00"
         },
         {
             "name": "symfony/mailer",
@@ -5356,16 +5356,16 @@
         },
         {
             "name": "symfony/routing",
-            "version": "v7.4.22",
+            "version": "v7.4.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/routing.git",
-                "reference": "f79ed6fbf60d9e32d358054f1915295f3b8a6f7a"
+                "reference": "0000ade604b7bc798cb1e75edf6f17df48185f73"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/routing/zipball/f79ed6fbf60d9e32d358054f1915295f3b8a6f7a",
-                "reference": "f79ed6fbf60d9e32d358054f1915295f3b8a6f7a",
+                "url": "https://api.github.com/repos/symfony/routing/zipball/0000ade604b7bc798cb1e75edf6f17df48185f73",
+                "reference": "0000ade604b7bc798cb1e75edf6f17df48185f73",
                 "shasum": ""
             },
             "require": {
@@ -5417,7 +5417,7 @@
                 "url"
             ],
             "support": {
-                "source": "https://github.com/symfony/routing/tree/v7.4.22"
+                "source": "https://github.com/symfony/routing/tree/v7.4.23"
             },
             "funding": [
                 {
@@ -5437,8 +5437,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-26T21:52:50+00:00",
-            "published-time": "2026-10-28T18:21:27+00:00"
+            "time": "2026-11-04T08:27:22+00:00",
+            "published-time": "2026-11-04T11:28:04+00:00"
         },
         {
             "name": "symfony/service-contracts",
@@ -6186,6 +6186,62 @@
             ],
             "time": "2026-04-26T05:33:54+00:00",
             "published-time": "2026-04-26T05:43:38+00:00"
+        },
+        {
+            "name": "workersphp/laravel-bridge",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/workersphp/laravel-bridge.git",
+                "reference": "383d7b534206247a80449f86c9fae4ee2a5c3637"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/workersphp/laravel-bridge/zipball/383d7b534206247a80449f86c9fae4ee2a5c3637",
+                "reference": "383d7b534206247a80449f86c9fae4ee2a5c3637",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "^11.0|^12.0|^13.0",
+                "illuminate/mail": "^11.0|^12.0|^13.0",
+                "illuminate/support": "^11.0|^12.0|^13.0",
+                "league/flysystem": "^3.0",
+                "php": "^8.2",
+                "symfony/http-kernel": "^7.0||^8.0",
+                "symfony/mailer": "^7.0||^8.0",
+                "symfony/mime": "^7.0||^8.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^9.0|^10.0|^11.0",
+                "phpunit/phpunit": "^11.0|^12.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "WorkersPhp\\Cloudflare\\CloudflareServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/polyfill/fileinfo.php"
+                ],
+                "psr-4": {
+                    "WorkersPhp\\Cloudflare\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Cloudflare-native Laravel drivers for Workers PHP: D1 database, KV and Durable Object caches, R2 storage, Queues, broadcasting and mail.",
+            "support": {
+                "issues": "https://github.com/workersphp/laravel-bridge/issues",
+                "source": "https://github.com/workersphp/laravel-bridge/tree/v0.1.0"
+            },
+            "time": "2026-08-14T22:27:41+00:00",
+            "published-time": "2026-08-14T22:49:09+00:00"
         }
     ],
     "packages-dev": [
@@ -8461,16 +8517,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v7.4.22",
+            "version": "v7.4.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "1ed6afa13d48c579c51cbf32e38f50686313497b"
+                "reference": "1e601207ffe627a2e621faa9d661f1d32dcf1cec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/1ed6afa13d48c579c51cbf32e38f50686313497b",
-                "reference": "1ed6afa13d48c579c51cbf32e38f50686313497b",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/1e601207ffe627a2e621faa9d661f1d32dcf1cec",
+                "reference": "1e601207ffe627a2e621faa9d661f1d32dcf1cec",
                 "shasum": ""
             },
             "require": {
@@ -8513,7 +8569,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v7.4.22"
+                "source": "https://github.com/symfony/yaml/tree/v7.4.23"
             },
             "funding": [
                 {
@@ -8533,8 +8589,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-18T14:39:27+00:00",
-            "published-time": "2026-10-28T18:20:33+00:00"
+            "time": "2026-11-04T08:27:22+00:00",
+            "published-time": "2026-11-04T11:28:41+00:00"
         },
         {
             "name": "theseer/tokenizer",

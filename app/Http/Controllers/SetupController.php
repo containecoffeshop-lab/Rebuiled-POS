@@ -17,11 +17,22 @@ class SetupController extends Controller
             return redirect()->route('login');
         }
 
+        abort_if(config('app.env') === 'production' && ! config('app.initial_setup_token'), 404);
+
         return view('auth.setup');
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $setupToken = (string) config('app.initial_setup_token', '');
+
+        abort_if(config('app.env') === 'production' && $setupToken === '', 404);
+        abort_if(
+            $setupToken !== '' && ! hash_equals($setupToken, (string) $request->input('setup_token', '')),
+            403,
+            'Kode pengaturan awal tidak valid.',
+        );
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],

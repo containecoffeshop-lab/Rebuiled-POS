@@ -35,4 +35,44 @@ class InitialSetupTest extends TestCase
         ])->assertForbidden();
         $this->assertDatabaseCount('users', 1);
     }
+
+    public function test_production_setup_requires_the_configured_one_time_token(): void
+    {
+        config([
+            'app.env' => 'production',
+            'app.initial_setup_token' => 'one-time-manager-setup',
+        ]);
+
+        $this->get(route('setup'))->assertOk();
+
+        $details = [
+            'name' => 'Pengelola',
+            'email' => 'owner@example.test',
+            'password' => 'password-aman-123',
+            'password_confirmation' => 'password-aman-123',
+        ];
+
+        $this->post(route('setup.store'), $details)->assertForbidden();
+        $this->post(route('setup.store'), [...$details, 'setup_token' => 'wrong-token'])->assertForbidden();
+
+        $this->post(route('setup.store'), [...$details, 'setup_token' => 'one-time-manager-setup'])
+            ->assertRedirect(route('pos.index'));
+
+        $this->assertDatabaseCount('users', 1);
+    }
+
+    public function test_production_setup_is_closed_when_a_token_is_not_configured(): void
+    {
+        config(['app.env' => 'production', 'app.initial_setup_token' => null]);
+
+        $this->get(route('setup'))->assertNotFound();
+        $this->post(route('setup.store'), [
+            'name' => 'Pengelola',
+            'email' => 'owner@example.test',
+            'password' => 'password-aman-123',
+            'password_confirmation' => 'password-aman-123',
+        ])->assertNotFound();
+
+        $this->assertDatabaseCount('users', 0);
+    }
 }
