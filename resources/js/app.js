@@ -826,6 +826,142 @@ document.querySelectorAll('[data-pos-workspace]').forEach((workspace) => {
     window.setInterval(updatePendingOrderBadge, 15000);
 });
 
+const notificationCenter = document.querySelector('[data-notifications]');
+if (notificationCenter) {
+    const toggle = notificationCenter.querySelector('[data-notification-toggle]');
+    const panel = notificationCenter.querySelector('[data-notification-panel]');
+    const list = notificationCenter.querySelector('[data-notification-list]');
+    const badge = notificationCenter.querySelector('[data-notification-badge]');
+    const readAllButton = notificationCenter.querySelector('[data-notification-read-all]');
+    let loading = false;
+
+    const request = async (url, method = 'GET') => {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                Accept: 'application/json',
+                ...(method === 'GET' ? {} : {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    'Content-Type': 'application/json',
+                }),
+            },
+            credentials: 'same-origin',
+            cache: 'no-store',
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    };
+
+    const updateBadge = (count) => {
+        if (!Number.isSafeInteger(count) || count < 0) throw new Error('Jumlah notifikasi tidak valid.');
+        badge.textContent = count > 99 ? '99+' : String(count);
+        badge.hidden = count === 0;
+        toggle.setAttribute('aria-label', count ? `${count} notifikasi belum dibaca` : 'Notifikasi');
+    };
+
+    const renderNotifications = (notifications) => {
+        list.replaceChildren();
+        if (!notifications.length) {
+            const empty = document.createElement('li');
+            empty.className = 'notification-empty';
+            empty.textContent = 'Belum ada notifikasi.';
+            list.append(empty);
+            return;
+        }
+
+        notifications.forEach((notification) => {
+            const item = document.createElement('li');
+            item.className = `notification-item${notification.read_at ? '' : ' unread'}`;
+            const link = document.createElement('a');
+            link.className = 'notification-link';
+            const target = new URL(notification.url || '/kasir', window.location.origin);
+            link.href = target.origin === window.location.origin ? target.href : '/kasir';
+            link.dataset.notificationId = notification.id;
+
+            const title = document.createElement('strong');
+            title.textContent = notification.title;
+            const message = document.createElement('span');
+            message.textContent = notification.message;
+            const time = document.createElement('time');
+            time.dateTime = notification.created_at || '';
+            time.textContent = notification.created_at
+                ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(notification.created_at))
+                : '';
+
+            link.append(title, message, time);
+            item.append(link);
+            list.append(item);
+        });
+    };
+
+    const refresh = async () => {
+        if (loading) return;
+        loading = true;
+        try {
+            const data = await request(notificationCenter.dataset.feedUrl);
+            if (!Array.isArray(data.notifications)) throw new Error('Daftar notifikasi tidak valid.');
+            updateBadge(data.unread_count);
+            renderNotifications(data.notifications);
+            notificationCenter.removeAttribute('data-refresh-error');
+        } catch {
+            notificationCenter.setAttribute('data-refresh-error', 'true');
+            if (list) list.querySelector('.notification-empty')?.replaceChildren('Gagal memuat notifikasi. Coba buka kembali.');
+        } finally {
+            loading = false;
+        }
+    };
+
+    toggle?.addEventListener('click', () => {
+        const opening = panel.hidden;
+        panel.hidden = !opening;
+        toggle.setAttribute('aria-expanded', String(opening));
+        if (opening) refresh();
+    });
+
+    notificationCenter.addEventListener('click', async (event) => {
+        const link = event.target.closest('[data-notification-id]');
+        if (!link) return;
+        event.preventDefault();
+        try {
+            await request(`${notificationCenter.dataset.feedUrl}/${encodeURIComponent(link.dataset.notificationId)}/baca`, 'PATCH');
+            window.location.assign(link.href);
+        } catch {
+            notificationCenter.setAttribute('data-refresh-error', 'true');
+            list.querySelector('.notification-empty')?.replaceChildren('Notifikasi tidak dapat ditandai dibaca. Coba lagi.');
+        }
+    });
+
+    readAllButton?.addEventListener('click', async () => {
+        readAllButton.disabled = true;
+        try {
+            const data = await request(notificationCenter.dataset.readAllUrl, 'PATCH');
+            updateBadge(data.unread_count);
+            await refresh();
+        } catch {
+            notificationCenter.setAttribute('data-refresh-error', 'true');
+        } finally {
+            readAllButton.disabled = false;
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!notificationCenter.contains(event.target) && !panel.hidden) {
+            panel.hidden = true;
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !panel.hidden) {
+            panel.hidden = true;
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.focus();
+        }
+    });
+
+    refresh();
+    window.setInterval(refresh, 20000);
+}
+
 document.querySelectorAll('details').forEach((details, index, detailsList) => {
     const summary = details.querySelector(':scope > summary');
     if (!summary) return;

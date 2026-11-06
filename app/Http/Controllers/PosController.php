@@ -24,6 +24,8 @@ use App\Models\Unit;
 use App\Models\User;
 use App\Services\OptimizedImageUpload;
 use App\Services\ProductInventory;
+use App\Services\PosNotificationService;
+use App\Services\PurchaseRecommendation;
 use App\Services\RecipeInventory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -45,7 +47,7 @@ class PosController extends Controller
         ]);
     }
 
-    public function index(Request $request, RecipeInventory $inventory, ProductInventory $productInventory): View
+    public function index(Request $request, RecipeInventory $inventory, ProductInventory $productInventory, PurchaseRecommendation $purchaseRecommendation): View
     {
         $filters = array_merge([
             'search' => '',
@@ -70,6 +72,13 @@ class PosController extends Controller
             ->whereNull('closed_at')
             ->latest('opened_at')
             ->first();
+        $activeShiftExpectedCash = $activeShift
+            ? $activeShift->starting_cash + (int) Transaction::query()
+                ->where('cashier_shift_id', $activeShift->id)
+                ->where('status', 'paid')
+                ->where('payment_method', 'cash')
+                ->sum('grand_total')
+            : null;
 
         $transactions = Transaction::query()
             ->with(['details', 'diningTable', 'coupon', 'charges', 'bankAccount'])
@@ -226,6 +235,9 @@ class PosController extends Controller
             $material->setAttribute('is_below_minimum', $material->stock_on_hand < $material->minimum_quantity);
             $material->setAttribute('estimated_unit_cost', $materialUnitCosts->get($material->id));
         });
+        $purchaseRecommendations = $purchaseRecommendation->forMaterials($materials);
+        $lowStockMaterials = $materials->filter(fn (Material $material): bool => $material->is_below_minimum)->sortBy('stock_on_hand')->values();
+        $openShiftCount = CashierShift::query()->whereNull('closed_at')->count();
         $menus->each(function (Menu $menu) use ($menuCostEstimates, $materialUnitCosts): void {
             $baseCost = $menuCostEstimates->get($menu->id)['cost'];
             $menu->variants->each(function (MenuVariant $variant) use ($baseCost, $materialUnitCosts): void {
@@ -298,6 +310,7 @@ class PosController extends Controller
 
         return view('pos.index', [
             'activeShift' => $activeShift,
+            'activeShiftExpectedCash' => $activeShiftExpectedCash,
             'categories' => Category::query()->withCount('menus')->orderBy('name')->get(),
             'menus' => $menus,
             'menuCostEstimates' => $menuCostEstimates,
@@ -310,6 +323,9 @@ class PosController extends Controller
             'inventoryAvailability' => $inventoryAvailability,
             'variantAvailability' => $variantAvailability,
             'materials' => $materials,
+            'lowStockMaterials' => $lowStockMaterials,
+            'purchaseRecommendations' => $purchaseRecommendations,
+            'openShiftCount' => $openShiftCount,
             'materialUnitCosts' => $materialUnitCosts,
             'units' => Unit::query()->orderBy('name')->get(),
             'initialCart' => $initialCart,
@@ -613,13 +629,14 @@ class PosController extends Controller
         return back()->with('success', 'Shift kasir dibuka.');
     }
 
-    public function closeShift(Request $request): RedirectResponse
+    public function closeShift(Request $request, PosNotificationService $notifications): RedirectResponse
     {
         $data = $request->validate([
             'ending_cash' => ['required', 'integer', 'min:0', 'max:999999999999'],
+            'closing_note' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        DB::transaction(function () use ($request, $data): void {
+        $closedShift = DB::transaction(function () use ($request, $data): CashierShift {
             $shift = CashierShift::query()
                 ->where('user_id', $request->user()->id)
                 ->whereNull('closed_at')
@@ -638,8 +655,35 @@ class PosController extends Controller
                 ]);
             }
 
-            $shift->update(['ending_cash' => $data['ending_cash'], 'closed_at' => now()]);
+            $cashSales = (int) Transaction::query()
+                ->where('cashier_shift_id', $shift->id)
+                ->where('status', 'paid')
+                ->where('payment_method', 'cash')
+                ->sum('grand_total');
+            $expectedCash = $shift->starting_cash + $cashSales;
+            $cashDifference = (int) $data['ending_cash'] - $expectedCash;
+
+            if ($cashDifference !== 0 && blank($data['closing_note'] ?? null)) {
+                throw ValidationException::withMessages([
+                    'closing_note' => 'Jelaskan penyebab selisih kas agar shift dapat ditutup.',
+                ]);
+            }
+
+            $shift->update([
+                'ending_cash' => $data['ending_cash'],
+                'expected_cash' => $expectedCash,
+                'cash_difference' => $cashDifference,
+                'closing_note' => $cashDifference === 0 ? null : trim($data['closing_note']),
+                'closed_at' => now(),
+            ]);
+
+            return $shift->fresh();
         });
+        $notifications->notifyStaff(
+            'Shift kasir ditutup',
+            'Shift '.$closedShift->user->name.' ditutup dengan selisih kas Rp'.number_format(abs($closedShift->cash_difference), 0, ',', '.').'.',
+            route('pos.index', ['module' => 'ringkasan']),
+        );
 
         return back()->with('success', 'Shift kasir ditutup.');
     }

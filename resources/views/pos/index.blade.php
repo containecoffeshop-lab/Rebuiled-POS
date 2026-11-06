@@ -88,6 +88,46 @@
     @endif
 </div>
 
+<section class="panel operational-focus" aria-labelledby="operational-focus-title">
+    <div class="panel-head">
+        <div><h2 id="operational-focus-title">Fokus operasional</h2><p>Hal-hal yang mungkin perlu ditangani sekarang.</p></div>
+    </div>
+    <div class="operational-focus-grid">
+        <a class="operational-focus-card" href="{{ route('pos.index', ['module' => 'pesanan', 'status' => 'pending']) }}">
+            <span class="stat-label">Pesanan menunggu pembayaran</span>
+            <strong class="stat-value">{{ number_format($summary['awaiting_payment'], 0, ',', '.') }}</strong>
+            <span class="cart-hint">Buka daftar pesanan</span>
+        </a>
+        <a class="operational-focus-card" href="{{ route('pos.index', ['module' => 'pesanan', 'kitchen_status' => 'onprogress']) }}">
+            <span class="stat-label">Pesanan dalam proses dapur</span>
+            <strong class="stat-value">{{ number_format($summary['in_kitchen'], 0, ',', '.') }}</strong>
+            <span class="cart-hint">Periksa alur pesanan</span>
+        </a>
+        <div class="operational-focus-card">
+            <span class="stat-label">Shift kasir yang masih terbuka</span>
+            <strong class="stat-value">{{ number_format($openShiftCount, 0, ',', '.') }}</strong>
+            <span class="cart-hint">{{ $activeShift ? 'Shift Anda sedang berjalan' : 'Shift Anda belum dibuka' }}</span>
+        </div>
+        @if (auth()->user()->role === 'manager')
+            <a class="operational-focus-card {{ $lowStockMaterials->isNotEmpty() ? 'needs-attention' : '' }}" href="{{ route('pos.index', ['module' => 'stok']) }}">
+                <span class="stat-label">Bahan di bawah stok minimum</span>
+                <strong class="stat-value">{{ number_format($lowStockMaterials->count(), 0, ',', '.') }}</strong>
+                <span class="cart-hint">{{ $lowStockMaterials->isNotEmpty() ? 'Buka stok & rekomendasi belanja' : 'Tidak ada bahan di bawah minimum' }}</span>
+            </a>
+        @endif
+    </div>
+    @if (auth()->user()->role === 'manager' && $lowStockMaterials->isNotEmpty())
+        <div class="operational-stock-list" aria-label="Bahan yang perlu diperiksa">
+            @foreach ($lowStockMaterials->take(5) as $material)
+                <div><strong>{{ $material->name }}</strong><span>Stok {{ number_format((float) $material->stock_on_hand, 3, ',', '.') }} / minimum {{ number_format((float) $material->minimum_quantity, 3, ',', '.') }} {{ $material->unit->name }}</span></div>
+            @endforeach
+            @if ($lowStockMaterials->count() > 5)
+                <p class="cart-hint">Dan {{ $lowStockMaterials->count() - 5 }} bahan lainnya.</p>
+            @endif
+        </div>
+    @endif
+</section>
+
 <section class="panel" style="margin-top:20px">
     <div class="panel-head"><div><h2>Statistik penjualan dan pengeluaran</h2><p>Perbandingan pemasukan transaksi lunas, pembayaran pengeluaran, dan target omzet harian.</p></div></div>
     <div class="summary-chart-legend">
@@ -149,8 +189,13 @@
                     <label class="field-label" for="ending_cash">Uang kas akhir</label>
                     <input class="field" id="ending_cash" name="ending_cash" type="number" min="0" max="999999999999" step="1" placeholder="Hitung kas fisik" required>
                 </div>
+                <div>
+                    <label class="field-label" for="shift-closing-note">Catatan selisih (wajib bila tidak cocok)</label>
+                    <input class="field" id="shift-closing-note" name="closing_note" type="text" maxlength="1000" placeholder="Contoh: uang kembalian kurang">
+                </div>
                 <button class="button button-danger" type="submit">Tutup shift</button>
             </form>
+            <p class="cart-hint">Kas yang diharapkan: Rp{{ number_format($activeShiftExpectedCash, 0, ',', '.') }} (uang awal + transaksi tunai lunas; retur dan pengeluaran di luar shift tidak dihitung).</p>
         @else
             <form class="inline-form" method="POST" action="{{ route('pos.shift.open') }}">
                 @csrf
@@ -914,6 +959,37 @@
             <p class="menu-description" style="font-size:13px;margin-top:10px">Menu tanpa resep tetap dijual tanpa pelacakan bahan. Tambahkan resep pada bagian edit menu untuk menghitung ketersediaan dan pemakaian otomatis.</p>
         </div>
     </div>
+    <section class="panel purchase-recommendations" aria-labelledby="purchase-recommendations-title">
+        <div class="panel-head">
+            <div>
+                <h3 id="purchase-recommendations-title">Saran belanja bahan</h3>
+                <p>Perkiraan dari pemakaian 30 hari terakhir dan kebutuhan stok 7 hari. Ini hanya saran—stok tidak berubah dan pembelian tidak dibuat otomatis.</p>
+            </div>
+            <a class="button button-secondary button-small" href="{{ route('pos.purchases.index') }}">Buka pembelian</a>
+        </div>
+        @if ($purchaseRecommendations->isEmpty())
+            <div class="empty-state">Belum ada bahan yang perlu dipesan menurut stok minimum dan pemakaian tercatat.</div>
+        @else
+            <div class="table-wrap">
+                <table class="menu-table">
+                    <thead><tr><th>Bahan</th><th>Pemakaian 30 hari</th><th>Stok tersedia</th><th>Pesanan terkonfirmasi</th><th>Saran jumlah</th><th>Supplier</th></tr></thead>
+                    <tbody>
+                        @foreach ($purchaseRecommendations as $row)
+                            @php($material = $row['material'])
+                            <tr>
+                                <td><strong>{{ $material->name }}</strong><small class="block cart-hint">{{ $material->unit->name }}</small></td>
+                                <td>{{ number_format($row['recent_usage'], 3, ',', '.') }}</td>
+                                <td>{{ number_format((float) $material->stock_on_hand, 3, ',', '.') }}</td>
+                                <td>{{ number_format($row['incoming_quantity'], 3, ',', '.') }}</td>
+                                <td><strong>{{ number_format($row['suggested_quantity'], 3, ',', '.') }} {{ $material->unit->name }}</strong></td>
+                                <td>{{ $material->supplier?->name ?? 'Belum ditentukan' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </section>
     <div class="table-wrap" style="margin-top:24px">
         <table class="menu-table">
             <thead><tr><th>Bahan</th><th>Satuan</th><th>Supplier</th><th>HPP / satuan</th><th>Stok tersedia</th><th>Minimum</th><th>Status</th><th>Detail bahan & stok masuk</th></tr></thead>

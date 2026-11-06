@@ -21,6 +21,23 @@
             </a>
             <nav class="nav-links" aria-label="Navigasi utama">
                 @auth
+                    <div class="notification-center" data-notifications
+                        data-feed-url="{{ route('pos.notifications.index') }}"
+                        data-read-all-url="{{ route('pos.notifications.read-all') }}">
+                        <button class="button button-secondary notification-toggle" type="button" data-notification-toggle aria-expanded="false" aria-controls="notification-panel" aria-label="Notifikasi">
+                            <x-icon name="notifications-outline" />
+                            <span class="notification-badge" data-notification-badge hidden></span>
+                        </button>
+                        <section class="notification-panel" id="notification-panel" data-notification-panel hidden aria-label="Notifikasi terbaru">
+                            <div class="notification-panel-head">
+                                <strong>Notifikasi</strong>
+                                <button class="button button-secondary button-small" type="button" data-notification-read-all>Tandai dibaca</button>
+                            </div>
+                            <ul class="notification-list" data-notification-list>
+                                <li class="notification-empty">Memuat notifikasi…</li>
+                            </ul>
+                        </section>
+                    </div>
                     <button class="button button-secondary printer-status-button" type="button" data-printer-dialog-open aria-haspopup="dialog" aria-controls="printer-dialog">
                         <x-icon name="bluetooth-outline" class="bluetooth-icon" />
                         <span class="printer-status-dot" data-printer-status-dot></span>

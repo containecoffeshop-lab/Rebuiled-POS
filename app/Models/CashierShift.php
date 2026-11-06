@@ -8,13 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CashierShift extends Model
 {
-    protected $fillable = ['user_id', 'starting_cash', 'ending_cash', 'opened_at', 'closed_at'];
+    protected $fillable = ['user_id', 'starting_cash', 'ending_cash', 'expected_cash', 'cash_difference', 'closing_note', 'opened_at', 'closed_at'];
 
     protected function casts(): array
     {
         return [
             'starting_cash' => 'integer',
             'ending_cash' => 'integer',
+            'expected_cash' => 'integer',
+            'cash_difference' => 'integer',
             'opened_at' => 'datetime',
             'closed_at' => 'datetime',
         ];

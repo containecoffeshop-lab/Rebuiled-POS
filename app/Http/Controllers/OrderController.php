@@ -16,6 +16,7 @@ use App\Services\CouponCalculator;
 use App\Services\LoyaltyProgram;
 use App\Services\ProductInventory;
 use App\Services\ProductPromotionCalculator;
+use App\Services\PosNotificationService;
 use App\Services\RecipeInventory;
 use App\Services\TransactionChargeCalculator;
 use Illuminate\Database\Eloquent\Builder;
@@ -187,16 +188,26 @@ class OrderController extends Controller
         ]);
     }
 
-    public function storeOnline(Request $request, RecipeInventory $inventory, ProductInventory $productInventory, ProductPromotionCalculator $promotions, CouponCalculator $couponCalculator, TransactionChargeCalculator $charges, LoyaltyProgram $loyalty): RedirectResponse
+    public function storeOnline(Request $request, RecipeInventory $inventory, ProductInventory $productInventory, ProductPromotionCalculator $promotions, CouponCalculator $couponCalculator, TransactionChargeCalculator $charges, LoyaltyProgram $loyalty, PosNotificationService $notifications): RedirectResponse
     {
         $transaction = $this->createTransaction($request, false, $inventory, $productInventory, $promotions, $couponCalculator, $charges, $loyalty);
+        $notifications->notifyStaff(
+            'Pesanan online masuk',
+            'Pesanan '.$transaction->invoice.' dari '.$transaction->customer_name.' menunggu diproses.',
+            route('pos.index', ['module' => 'pesanan']),
+        );
 
         return redirect()->route('orders.show', $transaction->invoice);
     }
 
-    public function storePos(Request $request, RecipeInventory $inventory, ProductInventory $productInventory, ProductPromotionCalculator $promotions, CouponCalculator $couponCalculator, TransactionChargeCalculator $charges, LoyaltyProgram $loyalty): RedirectResponse
+    public function storePos(Request $request, RecipeInventory $inventory, ProductInventory $productInventory, ProductPromotionCalculator $promotions, CouponCalculator $couponCalculator, TransactionChargeCalculator $charges, LoyaltyProgram $loyalty, PosNotificationService $notifications): RedirectResponse
     {
         $transaction = $this->createTransaction($request, true, $inventory, $productInventory, $promotions, $couponCalculator, $charges, $loyalty);
+        $notifications->notifyStaff(
+            'Transaksi selesai',
+            'Transaksi '.$transaction->invoice.' sebesar Rp'.number_format($transaction->grand_total, 0, ',', '.').' berhasil dicatat.',
+            route('pos.orders.receipt', $transaction),
+        );
 
         return redirect()->route('pos.orders.receipt', $transaction)
             ->with('success', 'Transaksi '.$transaction->invoice.' berhasil disimpan.')
@@ -218,7 +229,7 @@ class OrderController extends Controller
         return view('pos.receipt', compact('transaction'));
     }
 
-    public function markPaid(Request $request, Transaction $transaction, RecipeInventory $inventory, ProductInventory $productInventory, LoyaltyProgram $loyalty): RedirectResponse
+    public function markPaid(Request $request, Transaction $transaction, RecipeInventory $inventory, ProductInventory $productInventory, LoyaltyProgram $loyalty, PosNotificationService $notifications): RedirectResponse
     {
         $data = $request->validate([
             'payment_method' => ['required', 'in:cash,transfer'],
@@ -261,13 +272,19 @@ class OrderController extends Controller
             ]);
             $loyalty->recordSale($locked);
         });
+        $transaction->refresh();
+        $notifications->notifyStaff(
+            'Pembayaran selesai',
+            'Pesanan '.$transaction->invoice.' telah dibayar.',
+            route('pos.orders.receipt', $transaction),
+        );
 
         return redirect()->route('pos.orders.receipt', $transaction)
             ->with('success', 'Pembayaran berhasil dicatat.')
             ->with('print_receipt', true);
     }
 
-    public function updateKitchen(Request $request, Transaction $transaction): RedirectResponse
+    public function updateKitchen(Request $request, Transaction $transaction, PosNotificationService $notifications): RedirectResponse
     {
         $data = $request->validate(['kitchen_status' => ['required', 'in:onprogress,success']]);
         $allowedTransitions = [
@@ -283,11 +300,18 @@ class OrderController extends Controller
             abort_if($locked->status === 'cancelled', 422, 'Pesanan yang dibatalkan tidak dapat diproses dapur.');
             $locked->update(['kitchen_status' => $data['kitchen_status']]);
         });
+        if ($data['kitchen_status'] === 'success') {
+            $notifications->notifyStaff(
+                'Pesanan siap disajikan',
+                'Pesanan '.$transaction->invoice.' selesai diproses dapur.',
+                route('pos.index', ['module' => 'pesanan']),
+            );
+        }
 
         return back()->with('success', 'Status dapur diperbarui.');
     }
 
-    public function cancel(Transaction $transaction): RedirectResponse
+    public function cancel(Transaction $transaction, PosNotificationService $notifications): RedirectResponse
     {
         DB::transaction(function () use ($transaction): void {
             $locked = Transaction::query()->lockForUpdate()->findOrFail($transaction->id);
@@ -295,6 +319,11 @@ class OrderController extends Controller
             abort_unless($locked->status === 'pending' && (! $hasMenuItems || $locked->kitchen_status === 'pending'), 422, 'Hanya pesanan belum dibayar dan belum dikerjakan yang dapat dibatalkan.');
             $locked->update(['status' => 'cancelled', 'kitchen_status' => 'cancelled']);
         });
+        $notifications->notifyStaff(
+            'Pesanan dibatalkan',
+            'Pesanan '.$transaction->invoice.' dibatalkan.',
+            route('pos.index', ['module' => 'pesanan']),
+        );
 
         return back()->with('success', 'Pesanan dibatalkan.');
     }

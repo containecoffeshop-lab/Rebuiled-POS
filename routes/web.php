@@ -7,6 +7,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\MenuBundleController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PosController;
+use App\Http\Controllers\PosNotificationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductPromotionController;
 use App\Http\Controllers\PurchaseController;
@@ -38,6 +39,9 @@ Route::post('/admin/keluar', [AuthController::class, 'destroy'])->middleware('au
 Route::middleware(['auth', 'active', 'audit.write'])->prefix('kasir')->name('pos.')->group(function () {
     Route::get('/', [PosController::class, 'index'])->name('index');
     Route::get('/pesanan/menunggu/count', [PosController::class, 'pendingOrderCount'])->middleware('throttle:30,1')->name('orders.pending-count');
+    Route::get('/notifikasi', [PosNotificationController::class, 'index'])->middleware('throttle:30,1')->name('notifications.index');
+    Route::patch('/notifikasi/{notificationId}/baca', [PosNotificationController::class, 'markRead'])->name('notifications.read');
+    Route::patch('/notifikasi/baca-semua', [PosNotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/loyalitas/periksa', [OrderController::class, 'quotePos'])->middleware('throttle:30,1')->name('loyalty.quote');
     Route::get('/audit', [AuditEventController::class, 'index'])->middleware('role:manager')->name('audit.index');
     Route::get('/audit/{auditEvent}', [AuditEventController::class, 'show'])->middleware('role:manager')->name('audit.show');
