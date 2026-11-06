@@ -15,7 +15,7 @@ The workflow is manual: push the workflow to the repository, then run **Deploy P
 
 The Workers PHP generator emits a custom 30-second CPU limit, which Cloudflare's Free plan does not accept. The workflow removes that override from the generated config so Cloudflare applies the plan's default CPU limit.
 
-The workflow also uses the generator's bake step to precompile Laravel views and PHP OPcache before upload. This reduces first-request WebAssembly memory and CPU use; Cloudflare's Free-plan limits still apply.
+The workflow also uses the generator's bake step to precompile Laravel views and PHP OPcache before upload. It runs the bake container as the GitHub runner user to avoid root-owned build artifacts. Precompilation reduces first-request WebAssembly memory and CPU use; Cloudflare's Free-plan limits still apply.
 
 Open `/admin/pengaturan-awal` on the deployed site and enter the setup code to create the first manager. After setup, the wizard is closed. Remove the `INITIAL_SETUP_TOKEN` Worker secret after the manager account is created.
 

@@ -50,6 +50,7 @@ jobs:
         run: |
           npm ci
           composer install --no-interaction --prefer-dist --no-progress
+          node scripts/patch-workersphp-bake.mjs node_modules/@workersphp/laravel/build/bake.mjs
 
       - name: Test and build
         run: |
