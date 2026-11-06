@@ -9,11 +9,11 @@ use RuntimeException;
 
 class OptimizedImageUpload
 {
-    public function store(UploadedFile $upload, string $directory, int $maxDimension): string
+    public function store(UploadedFile $upload, string $directory, int $maxDimension, string $field = 'image'): string
     {
         if (! extension_loaded('gd') || ! function_exists('imagecreatefromstring')) {
             throw ValidationException::withMessages([
-                'image' => 'Pemrosesan gambar belum aktif di server. Aktifkan ekstensi PHP GD lalu coba kembali.',
+                $field => 'Pemrosesan gambar belum aktif di server. Aktifkan ekstensi PHP GD lalu coba kembali.',
             ]);
         }
 
@@ -21,11 +21,12 @@ class OptimizedImageUpload
         $source = $contents === false ? false : @imagecreatefromstring($contents);
 
         if ($source === false) {
-            throw ValidationException::withMessages(['image' => 'File gambar tidak dapat diproses.']);
+            throw ValidationException::withMessages([$field => 'File gambar tidak dapat diproses.']);
         }
 
         $sourceWidth = imagesx($source);
         $sourceHeight = imagesy($source);
+        $format = function_exists('imagewebp') ? 'webp' : ($directory === 'store' ? 'png' : 'jpg');
         $scale = min(1, $maxDimension / max($sourceWidth, $sourceHeight));
         $width = max(1, (int) round($sourceWidth * $scale));
         $height = max(1, (int) round($sourceHeight * $scale));
@@ -34,7 +35,7 @@ class OptimizedImageUpload
             imagedestroy($source);
             throw new RuntimeException('Ruang memori tidak cukup untuk mengolah gambar.');
         }
-        $supportsAlpha = in_array($upload->getMimeType(), ['image/png', 'image/webp'], true);
+        $supportsAlpha = $format !== 'jpg' && in_array($upload->getMimeType(), ['image/png', 'image/webp'], true);
 
         if ($supportsAlpha) {
             imagealphablending($optimized, false);
@@ -49,7 +50,6 @@ class OptimizedImageUpload
         imagecopyresampled($optimized, $source, 0, 0, 0, 0, $width, $height, $sourceWidth, $sourceHeight);
         imagedestroy($source);
 
-        $format = function_exists('imagewebp') ? 'webp' : ($directory === 'store' ? 'png' : 'jpg');
         $relativePath = "uploads/{$directory}/".bin2hex(random_bytes(16)).".{$format}";
         $absolutePath = public_path($relativePath);
         $temporaryPath = $absolutePath.'.tmp-'.bin2hex(random_bytes(8));

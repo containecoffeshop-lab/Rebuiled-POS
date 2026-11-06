@@ -40,7 +40,7 @@ class StoreSettingsController extends Controller
         ]);
 
         $oldLogoPath = StoreSetting::query()->where('key', 'logo_path')->value('value');
-        $newLogoPath = isset($data['logo']) ? $images->store($data['logo'], 'store', 512) : null;
+        $newLogoPath = isset($data['logo']) ? $images->store($data['logo'], 'store', 512, 'logo') : null;
         unset($data['logo'], $data['remove_logo']);
         $existingSettings = StoreSetting::query()->pluck('value', 'key');
         foreach ([
