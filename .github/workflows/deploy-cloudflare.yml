@@ -47,7 +47,7 @@ jobs:
 
       - name: Test and build
         run: |
-          php artisan test --compact
+          APP_KEY="$(php artisan key:generate --show)" php artisan test --compact
           npm run build
 
       - name: Verify or initialize D1 schema
