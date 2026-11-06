@@ -15,7 +15,6 @@ import {
     chevronDownOutline,
     chevronForwardOutline,
     clipboardOutline,
-    closeOutline,
     cubeOutline,
     fastFoodOutline,
     homeOutline,
@@ -32,11 +31,9 @@ import {
     settingsOutline,
     sparklesOutline,
     statsChartOutline,
-    storefrontOutline,
     timeOutline,
     walletOutline,
     barcodeOutline,
-    printOutline,
 } from 'ionicons/icons';
 
 addIcons({
@@ -51,7 +48,6 @@ addIcons({
     chevronDownOutline,
     chevronForwardOutline,
     clipboardOutline,
-    closeOutline,
     cubeOutline,
     fastFoodOutline,
     homeOutline,
@@ -68,11 +64,9 @@ addIcons({
     settingsOutline,
     sparklesOutline,
     statsChartOutline,
-    storefrontOutline,
     timeOutline,
     walletOutline,
     barcodeOutline,
-    printOutline,
 });
 defineCustomElement();
 
