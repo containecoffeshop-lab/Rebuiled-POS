@@ -100,4 +100,14 @@ class MenuAndStoreImageUploadTest extends TestCase
 
         $this->assertDatabaseMissing('menus', ['name' => 'Kopi susu']);
     }
+
+    public function test_public_menu_uses_registered_ionicons_for_its_interface_icons(): void
+    {
+        $this->get(route('home'))->assertOk()
+            ->assertSee('<ion-icon', false)
+            ->assertSee('name="cafe-outline"', false)
+            ->assertSee('name="search-outline"', false)
+            ->assertDontSee('☕')
+            ->assertDontSee('🛍️');
+    }
 }

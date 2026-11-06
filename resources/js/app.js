@@ -12,6 +12,7 @@ import {
     cartOutline,
     cashOutline,
     chevronBackOutline,
+    chevronDownOutline,
     chevronForwardOutline,
     clipboardOutline,
     closeOutline,
@@ -20,6 +21,7 @@ import {
     homeOutline,
     layersOutline,
     peopleOutline,
+    openOutline,
     personOutline,
     pricetagOutline,
     qrCodeOutline,
@@ -46,6 +48,7 @@ addIcons({
     cartOutline,
     cashOutline,
     chevronBackOutline,
+    chevronDownOutline,
     chevronForwardOutline,
     clipboardOutline,
     closeOutline,
@@ -54,6 +57,7 @@ addIcons({
     homeOutline,
     layersOutline,
     peopleOutline,
+    openOutline,
     personOutline,
     pricetagOutline,
     qrCodeOutline,
@@ -71,6 +75,15 @@ addIcons({
     printOutline,
 });
 defineCustomElement();
+
+document.querySelectorAll('details > summary').forEach((summary) => {
+    if (summary.querySelector('.details-chevron')) return;
+    const chevron = document.createElement('ion-icon');
+    chevron.className = 'app-icon details-chevron';
+    chevron.name = 'chevron-down-outline';
+    chevron.setAttribute('aria-hidden', 'true');
+    summary.append(chevron);
+});
 
 document.querySelectorAll('[data-image-preview-input]').forEach((input) => {
     const preview = document.getElementById(input.dataset.imagePreviewTarget);

@@ -29,7 +29,7 @@ button, .button { cursor: pointer; }
 .brand-mark { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 14px; color: #fff; background: #527a68; box-shadow: 5px 5px 12px #cbd0c8, -5px -5px 12px #fff; }
 .nav-links { display: flex; align-items: center; gap: 10px; }
 .printer-status-button { position: relative; min-height: 36px; gap: 6px; padding: 7px 10px; }
-.bluetooth-icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.bluetooth-icon { width: 18px; height: 18px; }
 .printer-status-dot { width: 9px; height: 9px; border-radius: 50%; background: #bb554a; box-shadow: 0 0 0 3px #f4e3df; }
 .printer-status-dot.connected { background: #3a9a62; box-shadow: 0 0 0 3px #dceee0; }
 .printer-status-dot.connecting { background: #c28b35; box-shadow: 0 0 0 3px #f4ecd8; }
@@ -123,6 +123,11 @@ button, .button { cursor: pointer; }
 .hero-decoration { color: currentColor; }
 .menu-placeholder-icon { width: 44px; height: 44px; color: var(--brand-accent, #947456); }
 .search-icon { width: 20px; height: 20px; align-self: center; margin-left: 8px; color: var(--brand-accent, #947456); }
+.welcome-external-icon { width: 10px; height: 11px; }
+summary { list-style: none; }
+summary::-webkit-details-marker { display: none; }
+.details-chevron { margin-left: auto; transition: transform .18s ease; }
+details[open] > summary .details-chevron { transform: rotate(180deg); }
 .pos-sidebar-link > :first-child { min-width: 18px; font-size: 18px; text-align: center; }
 .pos-module-content { min-width: 0; }
 .pos-module-content > .panel:first-child, .pos-module-content > .pos-module > .panel:first-child { margin-top: 0; }

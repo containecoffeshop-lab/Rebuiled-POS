@@ -1,5 +1,7 @@
 # Rasa POS
 
+Ikon UI menggunakan Ionicons 8 yang dibundel bersama aset lokal aplikasi; tidak memuat ikon dari CDN.
+
 POS web dan pemesanan menu pelanggan berbahasa Indonesia dengan tampilan Soft UI/Neumorphism. Menu web dan transaksi kasir tersimpan sebagai transaksi yang sama, sehingga pesanan pelanggan terlihat pada daftar kasir dan alur dapur.
 
 ## Menjalankan aplikasi
