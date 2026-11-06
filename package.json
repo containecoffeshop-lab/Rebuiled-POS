@@ -17,6 +17,7 @@
         "wrangler": "^4.158.0"
     },
     "dependencies": {
+        "ionicons": "^8.1.0",
         "jsbarcode": "^3.12.3",
         "qrcode": "^1.5.4"
     }
