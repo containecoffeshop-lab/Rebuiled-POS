@@ -48,8 +48,8 @@ jobs:
       - name: Test and build
         run: |
           export APP_KEY="base64:$(php -r 'echo base64_encode(random_bytes(32));')"
-          php artisan test --compact
           npm run build
+          php artisan test --compact
 
       - name: Verify or initialize D1 schema
         run: |
