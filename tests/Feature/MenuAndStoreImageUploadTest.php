@@ -33,6 +33,7 @@ class MenuAndStoreImageUploadTest extends TestCase
         $firstPath = public_path($menu->image_path);
         $this->assertFileExists($firstPath);
         $this->assertLessThanOrEqual(1200, getimagesize($firstPath)[0]);
+        $this->get(route('home'))->assertOk()->assertSee(asset($menu->image_path), false);
 
         $this->patch(route('pos.menus.update', $menu), [...$payload, 'image' => UploadedFile::fake()->image('menu-baru.png', 600, 400)])
             ->assertRedirect()
@@ -73,6 +74,7 @@ class MenuAndStoreImageUploadTest extends TestCase
         $this->assertDatabaseHas('store_settings', ['key' => 'hero_title', 'value' => 'Selamat datang']);
         $this->get(route('home'))->assertOk()
             ->assertSee('Selamat datang')
+            ->assertSee('--brand-primary: #123456', false)
             ->assertSee(asset($logoPath), false);
 
         $this->put(route('pos.settings.update'), [
