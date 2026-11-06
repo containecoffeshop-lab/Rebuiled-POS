@@ -27,6 +27,7 @@
                 <option value="stock" @selected($filters['report'] === 'stock')>Stok bahan</option>
                 <option value="stock-card" @selected($filters['report'] === 'stock-card')>Kartu stok bahan</option>
                 <option value="product-sales" @selected($filters['report'] === 'product-sales')>Produk terjual</option>
+                <option value="menu-margin" @selected($filters['report'] === 'menu-margin')>Margin per menu</option>
                 <option value="profit-loss" @selected($filters['report'] === 'profit-loss')>Laba kotor bahan</option>
             </select>
         </div>
@@ -38,7 +39,7 @@
             <label class="field-label" for="report-end">Sampai tanggal</label>
             <input class="field" id="report-end" name="end_date" type="date" value="{{ $filters['end_date'] }}" required>
         </div>
-        @if (in_array($filters['report'], ['sales', 'purchases', 'cash-flow', 'stock', 'product-sales', 'profit-loss'], true))
+        @if (in_array($filters['report'], ['sales', 'purchases', 'cash-flow', 'stock', 'product-sales', 'menu-margin', 'profit-loss'], true))
             <div style="flex:1 1 200px">
                 <label class="field-label" for="report-search">Pencarian</label>
                 <input class="field" id="report-search" name="search" value="{{ $filters['search'] }}" placeholder="Invoice, pelanggan, pemasok, bahan">
@@ -88,6 +89,9 @@
 
     @if ($reportData['kind'] === 'profit-loss')
         <div class="alert" role="note">Laba kotor memakai harga jual setelah diskon dan HPP batch yang tersnapshot saat bahan dipakai. PJK dikecualikan dari pendapatan usaha; OPR dihitung sebagai pendapatan biaya layanan. Baris menampilkan pendapatan transaksi sebelum retur; refund terkonfirmasi dikurangkan pada ringkasan berdasarkan tanggal retur dengan alokasi proporsional di luar PJK. Baris tanpa biaya bahan yang diketahui atau tanpa resep lengkap ditandai; laba total ditahan bila ada transaksi seperti itu. Biaya operasional belum dikurangkan.</div>
+    @endif
+    @if ($reportData['kind'] === 'menu-margin')
+        <div class="alert" role="note">Ini estimasi margin menu: biaya bahan batch saat transaksi dialokasikan ke item resep berdasarkan rata-rata biaya bahan per transaksi. Diskon kupon dan loyalitas dibagi proporsional; biaya layanan, produk eceran, dan refund tidak termasuk. Baris tanpa resep atau biaya bahan lengkap ditandai dan laba total tidak ditampilkan bila ada data yang kurang.</div>
     @endif
 
     @if ($reportData['kind'] === 'sales')
@@ -221,6 +225,29 @@
                                 <td>{{ $row['type'] === 'in' ? '+' : '−' }}{{ number_format($row['quantity'], 3, ',', '.') }} {{ $reportData['material']->unit?->name }}</td>
                                 <td>{{ number_format($row['balance'], 3, ',', '.') }} {{ $reportData['material']->unit?->name }}</td>
                                 <td>{{ $row['description'] ?: '—' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    @elseif ($reportData['kind'] === 'menu-margin')
+        @if ($reportData['rows']->isEmpty())
+            <div class="empty-state">Tidak ada menu terjual lunas pada periode ini.</div>
+        @else
+            <div class="table-wrap">
+                <table class="menu-table">
+                    <thead><tr><th>Menu / varian</th><th>Jumlah terjual</th><th>Penjualan setelah diskon</th><th>Estimasi HPP bahan</th><th>Estimasi laba kotor</th><th>Margin</th><th>Status</th></tr></thead>
+                    <tbody>
+                        @foreach ($reportData['rows'] as $row)
+                            <tr>
+                                <td><strong>{{ $row['item_name'] }}</strong></td>
+                                <td>{{ number_format($row['quantity'], 0, ',', '.') }}</td>
+                                <td>Rp{{ number_format($row['revenue'], 0, ',', '.') }}</td>
+                                <td>{{ $row['cogs'] === null ? 'Belum diketahui' : 'Rp'.number_format($row['cogs'], 0, ',', '.') }}</td>
+                                <td>{{ $row['gross_profit'] === null ? '—' : 'Rp'.number_format($row['gross_profit'], 0, ',', '.') }}</td>
+                                <td>{{ $row['margin_percent'] === null ? '—' : number_format($row['margin_percent'], 1, ',', '.').'%' }}</td>
+                                <td><span class="status-tag {{ $row['complete'] ? 'paid' : 'pending' }}">{{ $row['complete'] ? 'Lengkap' : 'Belum lengkap' }}</span></td>
                             </tr>
                         @endforeach
                     </tbody>
