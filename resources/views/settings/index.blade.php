@@ -9,7 +9,7 @@
 </div>
 
 <section class="panel">
-    <form class="pos-order-form" method="POST" action="{{ route('pos.settings.update') }}" style="max-width:680px">
+    <form class="pos-order-form" method="POST" action="{{ route('pos.settings.update') }}" enctype="multipart/form-data" style="max-width:680px">
         @csrf @method('PUT')
         <div class="field-group">
             <label class="field-label" for="store-name">Nama toko</label>
@@ -26,6 +26,45 @@
         <div class="field-group">
             <label class="field-label" for="store-footer">Pesan footer (opsional)</label>
             <input class="field" id="store-footer" name="receipt_footer" value="{{ old('receipt_footer', $settings['receipt_footer'] ?? '') }}" maxlength="240" placeholder="Terima kasih telah berkunjung">
+        </div>
+        <h2 class="settings-subheading">Logo dan tampilan katalog</h2>
+        <div class="field-group">
+            <label class="field-label" for="store-logo">Logo toko (opsional)</label>
+            @if (filled($settings['logo_path'] ?? null))
+                <img class="upload-preview logo-preview" src="{{ asset($settings['logo_path']) }}" alt="Logo toko saat ini">
+                <label class="field-label"><input type="checkbox" name="remove_logo" value="1"> Hapus logo saat disimpan</label>
+            @endif
+            <input class="field" id="store-logo" name="logo" type="file" accept="image/jpeg,image/png,image/webp" data-image-preview-input data-image-preview-target="store-logo-preview">
+            <small class="cart-hint">JPG, PNG, atau WebP, maksimal 5 MB. Logo diperkecil maksimal 512 px dan dikompresi; PNG transparan dipertahankan.</small>
+            <img class="upload-preview logo-preview" id="store-logo-preview" alt="Pratinjau logo toko" hidden>
+        </div>
+        <div class="settings-color-grid">
+            <div class="field-group">
+                <label class="field-label" for="brand-primary">Warna utama</label>
+                <input class="field color-field" id="brand-primary" name="brand_primary" type="color" value="{{ old('brand_primary', $settings['brand_primary'] ?? '#493123') }}" data-theme-color="primary">
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="brand-accent">Warna aksen</label>
+                <input class="field color-field" id="brand-accent" name="brand_accent" type="color" value="{{ old('brand_accent', $settings['brand_accent'] ?? '#947456') }}" data-theme-color="accent">
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="brand-background">Warna latar</label>
+                <input class="field color-field" id="brand-background" name="brand_background" type="color" value="{{ old('brand_background', $settings['brand_background'] ?? '#faf8f5') }}" data-theme-color="background">
+            </div>
+        </div>
+        <div class="theme-preview" data-theme-preview>
+            <span class="theme-preview-label">Pratinjau warna</span>
+            <strong>{{ old('name', $settings['name'] ?? 'Nama toko') }}</strong>
+            <span>Contoh tampilan katalog dengan warna pilihan.</span>
+            <button class="button button-small" type="button">Tombol utama</button>
+        </div>
+        <div class="field-group">
+            <label class="field-label" for="store-hero-title">Judul halaman menu pelanggan</label>
+            <input class="field" id="store-hero-title" name="hero_title" value="{{ old('hero_title', $settings['hero_title'] ?? '') }}" maxlength="120" placeholder="Temukan rasa yang pas untuk hari ini.">
+        </div>
+        <div class="field-group">
+            <label class="field-label" for="store-hero-description">Deskripsi halaman menu pelanggan</label>
+            <textarea class="field" id="store-hero-description" name="hero_description" rows="3" maxlength="300" placeholder="Sampaikan cerita singkat tentang toko dan menu Anda.">{{ old('hero_description', $settings['hero_description'] ?? '') }}</textarea>
         </div>
         <button class="button" type="submit">Simpan pengaturan</button>
     </form>

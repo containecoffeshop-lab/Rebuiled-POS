@@ -10,6 +10,9 @@
     </div>
     <article class="receipt-card">
         <header class="receipt-header">
+            @if (filled($storeSettings['logo_path'] ?? null))
+                <img class="receipt-logo" src="{{ asset($storeSettings['logo_path']) }}" alt="Logo {{ $storeSettings['name'] ?? 'toko' }}">
+            @endif
             <h1>{{ $storeSettings['name'] ?? 'Rasa' }}</h1>
             @if (filled($storeSettings['address'] ?? null))<p>{{ $storeSettings['address'] }}</p>@endif
             @if (filled($storeSettings['phone'] ?? null))<p>{{ $storeSettings['phone'] }}</p>@endif

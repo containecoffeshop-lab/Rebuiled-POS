@@ -15,29 +15,29 @@
     <aside class="pos-sidebar" aria-label="Navigasi modul">
         <button class="button button-secondary pos-sidebar-toggle" type="button" data-sidebar-toggle aria-expanded="true" aria-label="Minimalkan navigasi">‹ <span data-sidebar-toggle-label>Minimalkan</span></button>
         <nav class="pos-sidebar-nav">
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="dashboard" title="Dashboard">⌂ <span>Dashboard</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="ringkasan" title="Ringkasan">◷ <span>Ringkasan</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="kasir" title="Kasir">▣ <span>Kasir</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="konsumsi" title="Konsumsi karyawan">☕ <span>Konsumsi karyawan</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="pesanan" title="Pesanan">▤ <span>Pesanan</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="dashboard" title="Dashboard" aria-label="Dashboard">⌂ <span>Dashboard</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="ringkasan" title="Ringkasan" aria-label="Ringkasan">◷ <span>Ringkasan</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="kasir" title="Kasir" aria-label="Kasir">▣ <span>Kasir</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="konsumsi" title="Konsumsi karyawan" aria-label="Konsumsi karyawan">☕ <span>Konsumsi karyawan</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="pesanan" title="Pesanan" aria-label="Pesanan">▤ <span>Pesanan</span></button>
             @if (auth()->user()->role === 'manager')
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="menu" title="Menu">☰ <span>Menu & HPP</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="stok" title="Stok">▦ <span>Stok bahan</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="meja" title="Meja">▧ <span>Meja & QR</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="kupon" title="Kupon">％ <span>Kupon</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="pelanggan" title="Pelanggan">♙ <span>Pelanggan</span></button>
-                <a class="pos-sidebar-link" href="{{ route('pos.returns.index') }}" title="Retur">↩ <span>Retur</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.products.index') }}" title="Produk eceran">▣ <span>Produk eceran</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.purchases.index') }}" title="Pembelian">＋ <span>Pembelian</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.expenses.index') }}" title="Pengeluaran">− <span>Pengeluaran</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.reports.index') }}" title="Laporan">▥ <span>Laporan</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.promotions.index') }}" title="Promo menu">✦ <span>Promo menu</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.bundles.index') }}" title="Paket menu">▣ <span>Paket menu</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.settings.index') }}" title="Pengaturan">⚙ <span>Pengaturan toko</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.stock-takes.index') }}" title="Stok opname">✓ <span>Stok opname</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.barcode-templates.index') }}" title="Cetak barcode">▤ <span>Cetak barcode</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.users.index') }}" title="Pengguna">♙ <span>Pengguna</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.audit.index') }}" title="Audit">◷ <span>Audit</span></a>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="menu" title="Menu" aria-label="Menu dan HPP">☰ <span>Menu & HPP</span></button>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="stok" title="Stok" aria-label="Stok bahan">▦ <span>Stok bahan</span></button>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="meja" title="Meja" aria-label="Meja dan QR">▧ <span>Meja & QR</span></button>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="kupon" title="Kupon" aria-label="Kupon">％ <span>Kupon</span></button>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="pelanggan" title="Pelanggan" aria-label="Pelanggan">♙ <span>Pelanggan</span></button>
+                <a class="pos-sidebar-link" href="{{ route('pos.returns.index') }}" title="Retur" aria-label="Retur penjualan">↩ <span>Retur</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.products.index') }}" title="Produk eceran" aria-label="Produk eceran">▣ <span>Produk eceran</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.purchases.index') }}" title="Pembelian" aria-label="Pembelian">＋ <span>Pembelian</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.expenses.index') }}" title="Pengeluaran" aria-label="Pengeluaran">− <span>Pengeluaran</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.reports.index') }}" title="Laporan" aria-label="Laporan">▥ <span>Laporan</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.promotions.index') }}" title="Promo menu" aria-label="Promo menu">✦ <span>Promo menu</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.bundles.index') }}" title="Paket menu" aria-label="Paket menu">▣ <span>Paket menu</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.settings.index') }}" title="Pengaturan" aria-label="Pengaturan toko">⚙ <span>Pengaturan toko</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.stock-takes.index') }}" title="Stok opname" aria-label="Stok opname">✓ <span>Stok opname</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.barcode-templates.index') }}" title="Cetak barcode" aria-label="Cetak barcode">▤ <span>Cetak barcode</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.users.index') }}" title="Pengguna" aria-label="Pengguna">♙ <span>Pengguna</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.audit.index') }}" title="Audit" aria-label="Audit aktivitas">◷ <span>Audit</span></a>
             @endif
         </nav>
     </aside>
@@ -204,6 +204,7 @@
                         ])->values();
                     @endphp
                     <article class="pos-item" data-menu-card data-item-type="menu" data-item-id="{{ $menu->id }}" data-item-name="{{ $menu->name }}" data-item-price="{{ $menu->selling_price }}" data-item-barcode="{{ $menu->barcode }}" data-menu-barcode="{{ $menu->barcode }}" data-item-variants="{{ json_encode($menuVariantOptions, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}">
+                        @if ($menu->image_path)<img class="pos-item-image" src="{{ asset($menu->image_path) }}" alt="" loading="lazy">@endif
                         <div>
                             <h3>{{ $menu->name }}</h3>
                             <p>{{ $menu->category->name }} · Rp{{ number_format($menu->selling_price, 0, ',', '.') }}</p>
@@ -406,6 +407,7 @@
                             ])->values();
                         @endphp
                         <article class="pos-item" data-menu-card data-item-type="menu" data-item-id="{{ $menu->id }}" data-item-name="{{ $menu->name }}" data-item-price="{{ $menu->selling_price }}" data-item-cost="{{ $menuCostEstimates->get($menu->id)['cost'] ?? '' }}" data-item-variants="{{ json_encode($menuVariantOptions, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}">
+                            @if ($menu->image_path)<img class="pos-item-image" src="{{ asset($menu->image_path) }}" alt="" loading="lazy">@endif
                             <div>
                                 <h3>{{ $menu->name }}</h3>
                                 <p>Estimasi HPP {{ $menuCostEstimates->get($menu->id)['cost'] === null ? 'belum diketahui' : 'Rp'.number_format($menuCostEstimates->get($menu->id)['cost'], 0, ',', '.') }}</p>
@@ -594,7 +596,7 @@
     <div class="menu-actions-row">
         <details>
             <summary class="button">＋ Tambah menu</summary>
-            <form class="pos-order-form" method="POST" action="{{ route('pos.menus.store') }}">
+            <form class="pos-order-form" method="POST" action="{{ route('pos.menus.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="field-group">
                     <label class="field-label" for="menu_name">Nama menu</label>
@@ -616,6 +618,12 @@
                 <div class="field-group">
                     <label class="field-label" for="menu_description">Deskripsi (opsional)</label>
                     <textarea class="field" id="menu_description" name="description" rows="2" maxlength="500"></textarea>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="menu_image">Foto menu (opsional)</label>
+                    <input class="field" id="menu_image" name="image" type="file" accept="image/jpeg,image/png,image/webp" data-image-preview-input data-image-preview-target="new-menu-image-preview">
+                    <small class="cart-hint">JPG, PNG, atau WebP, maksimal 5 MB. Foto otomatis diperkecil ke maksimal 1.200 px dan dikompresi.</small>
+                    <img class="upload-preview" id="new-menu-image-preview" alt="Pratinjau foto menu" hidden>
                 </div>
                 <div class="field-group">
                     <label class="field-label" for="menu_barcode">Barcode (opsional)</label>
@@ -666,7 +674,7 @@
                             <details data-menu-editor data-menu-id="{{ $menu->id }}" @if ((int) session('open_menu') === $menu->id) data-open-after-submit @endif>
                                 <summary class="button button-secondary button-small">Detail / resep</summary>
                                 <div class="menu-editor-grid">
-                                <form class="pos-order-form" method="POST" action="{{ route('pos.menus.update', $menu) }}" style="min-width:245px;margin-top:8px">
+                                <form class="pos-order-form" method="POST" action="{{ route('pos.menus.update', $menu) }}" enctype="multipart/form-data" style="min-width:245px;margin-top:8px">
                                     @csrf @method('PATCH')
                                     <div class="field-group">
                                         <label class="field-label" for="edit-menu-name-{{ $menu->id }}">Nama</label>
@@ -687,6 +695,15 @@
                                     <div class="field-group">
                                         <label class="field-label" for="edit-menu-description-{{ $menu->id }}">Deskripsi</label>
                                         <textarea class="field" id="edit-menu-description-{{ $menu->id }}" name="description" rows="2" maxlength="500">{{ $menu->description }}</textarea>
+                                    </div>
+                                    <div class="field-group">
+                                        <label class="field-label" for="edit-menu-image-{{ $menu->id }}">Foto menu (opsional)</label>
+                                        @if ($menu->image_path)
+                                            <img class="upload-preview" src="{{ asset($menu->image_path) }}" alt="Foto {{ $menu->name }}">
+                                            <label class="field-label"><input type="checkbox" name="remove_image" value="1"> Hapus foto saat disimpan</label>
+                                        @endif
+                                        <input class="field" id="edit-menu-image-{{ $menu->id }}" name="image" type="file" accept="image/jpeg,image/png,image/webp" data-image-preview-input data-image-preview-target="edit-menu-image-preview-{{ $menu->id }}">
+                                        <img class="upload-preview" id="edit-menu-image-preview-{{ $menu->id }}" alt="Pratinjau foto menu" hidden>
                                     </div>
                                     <div class="field-group">
                                         <label class="field-label" for="edit-menu-barcode-{{ $menu->id }}">Barcode (opsional)</label>

@@ -22,6 +22,7 @@ use App\Models\Supplier;
 use App\Models\Transaction;
 use App\Models\Unit;
 use App\Models\User;
+use App\Services\OptimizedImageUpload;
 use App\Services\ProductInventory;
 use App\Services\RecipeInventory;
 use Illuminate\Http\JsonResponse;
@@ -658,12 +659,21 @@ class PosController extends Controller
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:500'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=64,min_height=64,max_width=5000,max_height=5000'],
             'selling_price' => ['required', 'integer', 'min:1', 'max:9999999999'],
             'barcode' => ['nullable', 'string', 'max:120', 'regex:/^[\x20-\x7E]+$/', 'unique:menus,barcode'],
         ]);
         $this->assertMenuBarcodeAvailable($data['barcode'] ?? null);
 
-        $menu = Menu::create($data);
+        $imagePath = isset($data['image']) ? app(OptimizedImageUpload::class)->store($data['image'], 'menu', 1200) : null;
+        unset($data['image']);
+
+        try {
+            $menu = Menu::create([...$data, 'image_path' => $imagePath]);
+        } catch (\Throwable $exception) {
+            app(OptimizedImageUpload::class)->delete($imagePath);
+            throw $exception;
+        }
 
         return redirect()->route('pos.index', ['module' => 'menu'])
             ->with('success', 'Menu berhasil ditambahkan. Tambahkan bahan resep bila diperlukan.')
@@ -677,12 +687,30 @@ class PosController extends Controller
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:500'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=64,min_height=64,max_width=5000,max_height=5000'],
+            'remove_image' => ['nullable', 'boolean'],
             'selling_price' => ['required', 'integer', 'min:1', 'max:9999999999'],
             'barcode' => ['nullable', 'string', 'max:120', 'regex:/^[\x20-\x7E]+$/', Rule::unique('menus', 'barcode')->ignore($menu->id)],
         ]);
         $this->assertMenuBarcodeAvailable($data['barcode'] ?? null);
 
-        $menu->update($data);
+        $newImagePath = isset($data['image']) ? app(OptimizedImageUpload::class)->store($data['image'], 'menu', 1200) : null;
+        unset($data['image'], $data['remove_image']);
+        $oldImagePath = $menu->image_path;
+
+        try {
+            $menu->update([
+                ...$data,
+                'image_path' => $newImagePath ?? ($request->boolean('remove_image') ? null : $oldImagePath),
+            ]);
+        } catch (\Throwable $exception) {
+            app(OptimizedImageUpload::class)->delete($newImagePath);
+            throw $exception;
+        }
+
+        if ($newImagePath || $request->boolean('remove_image')) {
+            app(OptimizedImageUpload::class)->delete($oldImagePath);
+        }
 
         return back()->with('success', 'Perubahan menu berhasil disimpan.');
     }

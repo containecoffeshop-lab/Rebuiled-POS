@@ -2,6 +2,34 @@ import './bootstrap';
 import QRCode from 'qrcode';
 import JsBarcode from 'jsbarcode';
 
+document.querySelectorAll('[data-image-preview-input]').forEach((input) => {
+    const preview = document.getElementById(input.dataset.imagePreviewTarget);
+    if (!(input instanceof HTMLInputElement) || !(preview instanceof HTMLImageElement)) return;
+    let previewUrl;
+    input.addEventListener('change', () => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        const [file] = input.files || [];
+        if (!file) {
+            preview.removeAttribute('src');
+            preview.hidden = true;
+            return;
+        }
+        previewUrl = URL.createObjectURL(file);
+        preview.src = previewUrl;
+        preview.hidden = false;
+    });
+});
+
+document.querySelectorAll('[data-theme-preview]').forEach((preview) => {
+    const updatePreview = () => {
+        preview.style.setProperty('--preview-primary', document.querySelector('[data-theme-color="primary"]')?.value || '#493123');
+        preview.style.setProperty('--preview-accent', document.querySelector('[data-theme-color="accent"]')?.value || '#947456');
+        preview.style.setProperty('--preview-background', document.querySelector('[data-theme-color="background"]')?.value || '#faf8f5');
+    };
+    document.querySelectorAll('[data-theme-color]').forEach((input) => input.addEventListener('input', updatePreview));
+    updatePreview();
+});
+
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if ('IntersectionObserver' in window && !reducedMotion) {
     const revealObserver = new IntersectionObserver((entries, observer) => {

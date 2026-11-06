@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Menu extends Model
 {
-    protected $fillable = ['category_id', 'name', 'description', 'selling_price', 'is_available', 'is_bundle', 'barcode'];
+    protected $fillable = ['category_id', 'name', 'description', 'image_path', 'selling_price', 'is_available', 'is_bundle', 'barcode'];
 
     protected function casts(): array
     {

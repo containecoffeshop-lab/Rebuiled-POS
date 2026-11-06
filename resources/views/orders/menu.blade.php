@@ -8,8 +8,8 @@
 @endif
 <section class="hero">
     <p class="eyebrow">Kopi baik, hari lebih ringan</p>
-    <h1>Temukan rasa yang pas untuk hari ini.</h1>
-    <p>Pilih menu favoritmu, sampaikan catatan, lalu pesanan langsung masuk ke meja kasir.</p>
+    <h1>{{ filled($storeSettings['hero_title'] ?? null) ? $storeSettings['hero_title'] : 'Temukan rasa yang pas untuk hari ini.' }}</h1>
+    <p>{{ filled($storeSettings['hero_description'] ?? null) ? $storeSettings['hero_description'] : 'Pilih menu favoritmu, sampaikan catatan, lalu pesanan langsung masuk ke meja kasir.' }}</p>
     <span class="hero-note">✦ Dibuat segar setelah dipesan <span>·</span> Bayar di kasir</span>
 </section>
 
@@ -60,7 +60,13 @@
                         ])->values();
                     @endphp
                     <article class="menu-card" data-menu-card data-item-type="menu" data-item-id="{{ $menu->id }}" data-item-name="{{ $menu->name }}" data-item-price="{{ $menu->selling_price }}" data-item-barcode="{{ $menu->barcode }}" data-item-variants="{{ json_encode($menuVariantOptions, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}">
-                        <div class="menu-art" aria-hidden="true">{{ $icon }}</div>
+                        <div class="menu-art" aria-hidden="true">
+                            @if ($menu->image_path)
+                                <img src="{{ asset($menu->image_path) }}" alt="" loading="lazy">
+                            @else
+                                {{ $icon }}
+                            @endif
+                        </div>
                         <span class="menu-category">{{ $menu->category->name }}{{ $menu->is_bundle ? ' · Paket' : '' }}</span>
                         <h3>{{ $menu->name }}</h3>
                         <p class="menu-description">{{ $menu->description ?: 'Pilihan favorit yang diracik dengan bahan terbaik.' }}</p>

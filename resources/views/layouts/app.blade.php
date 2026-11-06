@@ -8,11 +8,15 @@
     <meta name="description" content="Menu dan pemesanan {{ $storeSettings['name'] ?? 'Rasa' }}.">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body @if (request()->routeIs('pos.index') && request('module', 'kasir') === 'kasir') class="pos-screen" @endif>
+<body style="--brand-primary: {{ $storeSettings['brand_primary'] ?? '#493123' }}; --brand-accent: {{ $storeSettings['brand_accent'] ?? '#947456' }}; --brand-background: {{ $storeSettings['brand_background'] ?? '#faf8f5' }}" @if (request()->routeIs('pos.index') && request('module', 'kasir') === 'kasir') class="pos-screen" @endif>
     <header class="topbar">
         <div class="shell nav">
             <a class="brand" href="{{ route('home') }}">
-                <span class="brand-mark">R</span>
+                @if (filled($storeSettings['logo_path'] ?? null))
+                    <img class="brand-logo" src="{{ asset($storeSettings['logo_path']) }}" alt="Logo {{ $storeSettings['name'] ?? 'toko' }}">
+                @else
+                    <span class="brand-mark">R</span>
+                @endif
                 <span>{{ $storeSettings['name'] ?? 'Rasa' }}<span style="color:#6e8d75">.</span></span>
             </a>
             <nav class="nav-links" aria-label="Navigasi utama">

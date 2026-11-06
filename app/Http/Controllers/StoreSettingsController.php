@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BankAccount;
 use App\Models\StoreCharge;
 use App\Models\StoreSetting;
+use App\Services\OptimizedImageUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,22 +23,54 @@ class StoreSettingsController extends Controller
         return view('settings.index', compact('settings', 'charges', 'bankAccounts'));
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request, OptimizedImageUpload $images): RedirectResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'address' => ['nullable', 'string', 'max:500'],
             'phone' => ['nullable', 'string', 'max:40'],
             'receipt_footer' => ['nullable', 'string', 'max:240'],
+            'hero_title' => ['nullable', 'string', 'max:120'],
+            'hero_description' => ['nullable', 'string', 'max:300'],
+            'brand_primary' => ['sometimes', 'required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'brand_accent' => ['sometimes', 'required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'brand_background' => ['sometimes', 'required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=64,min_height=64,max_width=5000,max_height=5000'],
+            'remove_logo' => ['nullable', 'boolean'],
         ]);
 
-        DB::transaction(function () use ($data): void {
-            foreach (['name', 'address', 'phone', 'receipt_footer'] as $key) {
-                StoreSetting::query()->updateOrCreate(['key' => $key], ['value' => trim($data[$key] ?? '')]);
-            }
-        }, attempts: 3);
+        $oldLogoPath = StoreSetting::query()->where('key', 'logo_path')->value('value');
+        $newLogoPath = isset($data['logo']) ? $images->store($data['logo'], 'store', 512) : null;
+        unset($data['logo'], $data['remove_logo']);
+        $existingSettings = StoreSetting::query()->pluck('value', 'key');
+        foreach ([
+            'brand_primary' => '#493123',
+            'brand_accent' => '#947456',
+            'brand_background' => '#faf8f5',
+        ] as $key => $default) {
+            $data[$key] ??= $existingSettings->get($key, $default);
+        }
+        $values = [
+            ...$data,
+            'logo_path' => $newLogoPath ?? ($request->boolean('remove_logo') ? '' : (string) $oldLogoPath),
+        ];
 
-        return back()->with('success', 'Pengaturan toko berhasil disimpan.');
+        try {
+            DB::transaction(function () use ($values): void {
+                foreach ($values as $key => $value) {
+                    StoreSetting::query()->updateOrCreate(['key' => $key], ['value' => trim((string) ($value ?? ''))]);
+                }
+            }, attempts: 3);
+        } catch (\Throwable $exception) {
+            $images->delete($newLogoPath);
+            throw $exception;
+        }
+
+        if ($newLogoPath || $request->boolean('remove_logo')) {
+            $images->delete($oldLogoPath);
+        }
+
+        return back()->with('success', 'Identitas dan tampilan toko berhasil disimpan.');
     }
 
     public function updateCharges(Request $request): RedirectResponse

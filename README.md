@@ -4,7 +4,7 @@ POS web dan pemesanan menu pelanggan berbahasa Indonesia dengan tampilan Soft UI
 
 ## Menjalankan aplikasi
 
-Prasyarat: PHP 8.2+, ekstensi PDO SQLite, Composer, dan Node.js/npm.
+Prasyarat: PHP 8.2+, ekstensi PDO SQLite dan GD, Composer, dan Node.js/npm. Ekstensi GD digunakan untuk memproses dan mengompres unggahan logo/foto menu.
 
 ```powershell
 composer install
@@ -31,6 +31,7 @@ Shift hanya dapat ditutup setelah semua pesanan yang belum dibayar pada shift te
 - Paket menu dengan harga paket yang divalidasi lebih rendah dari jumlah harga komponen. Stok bahan diambil dari gabungan resep menu komponennya dan resep transaksi tetap tersimpan sebagai snapshot.
 - Barcode unik pada menu dan varian produk eceran dapat dipindai dari kasir menggunakan pemindai yang bertindak sebagai input keyboard; kode dinormalisasi dan divalidasi server sebelum disimpan.
 - Pengaturan identitas toko (nama, alamat, nomor telepon, dan pesan footer) ditampilkan pada katalog serta kerangka aplikasi dan hanya dapat diubah pengelola.
+- Pengelola dapat mengunggah foto menu serta logo toko (JPG, PNG, atau WebP, maksimal 5 MB); gambar dikodekan ulang ke format terkompresi dan dibatasi dimensinya sebelum disimpan. Warna utama/aksen/latar dan teks hero katalog pelanggan juga dapat disesuaikan dari pengaturan toko. Foto menu tampil pada katalog, kasir, dan logo pada navigasi serta struk; unggahan memerlukan ekstensi PHP GD aktif.
 - Template label barcode untuk kertas lembar atau roll memvalidasi ukuran dan jarak cetak; pengelola dapat menyiapkan cetak menu dan varian produk ber-barcode, maksimal 500 label per pekerjaan. Pemindaian dan render label memakai Code 128; cetak fisik tetap mengikuti pengaturan printer/browser.
 - Stok opname bahan menyimpan stok sistem, jumlah fisik, petugas, waktu, dan selisih per satuan; konfirmasi membuat mutasi yang dapat ditelusuri, menambah stok lebih pada batch penyesuaian, dan mengurangi stok kurang lewat FIFO tanpa membuat batch negatif. Riwayat yang telah disimpan tidak dapat diedit dari UI.
 - Audit metadata aksi perubahan POS (pengguna, waktu, rute, objek, metode, dan status HTTP) dengan pencarian/filter/ekspor CSV; payload formulir dan kata sandi tidak direkam.
