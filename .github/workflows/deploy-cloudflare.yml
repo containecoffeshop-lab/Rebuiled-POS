@@ -85,6 +85,7 @@ jobs:
             --env SESSION_DRIVER=cookie \
             --env SESSION_SECURE_COOKIE=true \
             --no-deploy
+          node scripts/patch-workersphp-config.mjs "deployments/$WORKER_NAME/wrangler.jsonc"
       - name: Add setup secret and enable the setup wizard
         env:
           APP_KEY: ${{ secrets.APP_KEY }}

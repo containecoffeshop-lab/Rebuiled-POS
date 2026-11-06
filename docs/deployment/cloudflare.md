@@ -13,6 +13,8 @@ Add these under the repository's **Settings → Secrets and variables → Action
 
 The workflow is manual: push the workflow to the repository, then run **Deploy POS staging to Cloudflare** from the Actions tab. It deploys to `rebuiled-pos-staging` and uses the `containecoffe` D1 database. The workflow initializes only an empty database or verifies that an existing database matches this application's migration history; it refuses a mismatched schema.
 
+The Workers PHP generator emits a custom 30-second CPU limit, which Cloudflare's Free plan does not accept. The workflow removes that override from the generated config so Cloudflare applies the plan's default CPU limit.
+
 Open `/admin/pengaturan-awal` on the deployed site and enter the setup code to create the first manager. After setup, the wizard is closed. Remove the `INITIAL_SETUP_TOKEN` Worker secret after the manager account is created.
 
 ## Staging-only limitation
