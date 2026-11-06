@@ -1,6 +1,76 @@
 import './bootstrap';
 import QRCode from 'qrcode';
 import JsBarcode from 'jsbarcode';
+import { defineCustomElement } from 'ionicons/components/ion-icon.js';
+import { addIcons } from 'ionicons';
+import {
+    addCircleOutline,
+    bagHandleOutline,
+    barChartOutline,
+    bluetoothOutline,
+    cafeOutline,
+    cartOutline,
+    cashOutline,
+    chevronBackOutline,
+    chevronForwardOutline,
+    clipboardOutline,
+    closeOutline,
+    cubeOutline,
+    fastFoodOutline,
+    homeOutline,
+    layersOutline,
+    peopleOutline,
+    personOutline,
+    pricetagOutline,
+    qrCodeOutline,
+    receiptOutline,
+    removeCircleOutline,
+    restaurantOutline,
+    returnUpBackOutline,
+    settingsOutline,
+    sparklesOutline,
+    statsChartOutline,
+    storefrontOutline,
+    timeOutline,
+    walletOutline,
+    barcodeOutline,
+    printOutline,
+} from 'ionicons/icons';
+
+addIcons({
+    addCircleOutline,
+    bagHandleOutline,
+    barChartOutline,
+    bluetoothOutline,
+    cafeOutline,
+    cartOutline,
+    cashOutline,
+    chevronBackOutline,
+    chevronForwardOutline,
+    clipboardOutline,
+    closeOutline,
+    cubeOutline,
+    fastFoodOutline,
+    homeOutline,
+    layersOutline,
+    peopleOutline,
+    personOutline,
+    pricetagOutline,
+    qrCodeOutline,
+    receiptOutline,
+    removeCircleOutline,
+    restaurantOutline,
+    returnUpBackOutline,
+    settingsOutline,
+    sparklesOutline,
+    statsChartOutline,
+    storefrontOutline,
+    timeOutline,
+    walletOutline,
+    barcodeOutline,
+    printOutline,
+});
+defineCustomElement();
 
 document.querySelectorAll('[data-image-preview-input]').forEach((input) => {
     const preview = document.getElementById(input.dataset.imagePreviewTarget);

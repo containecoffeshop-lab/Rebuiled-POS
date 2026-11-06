@@ -13,31 +13,31 @@
 
 <div class="pos-workspace" data-pos-workspace data-default-module="{{ request('module', 'kasir') }}" data-pending-orders-url="{{ route('pos.orders.pending-count') }}" data-pending-order-count="{{ $summary['awaiting_payment'] }}">
     <aside class="pos-sidebar" aria-label="Navigasi modul">
-        <button class="button button-secondary pos-sidebar-toggle" type="button" data-sidebar-toggle aria-expanded="true" aria-label="Minimalkan navigasi">‹ <span data-sidebar-toggle-label>Minimalkan</span></button>
+        <button class="button button-secondary pos-sidebar-toggle" type="button" data-sidebar-toggle aria-expanded="true" aria-label="Minimalkan navigasi"><x-icon name="chevron-back-outline" /><x-icon name="chevron-forward-outline" /><span data-sidebar-toggle-label>Minimalkan</span></button>
         <nav class="pos-sidebar-nav">
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="dashboard" title="Dashboard" aria-label="Dashboard">⌂ <span>Dashboard</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="ringkasan" title="Ringkasan" aria-label="Ringkasan">◷ <span>Ringkasan</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="kasir" title="Kasir" aria-label="Kasir">▣ <span>Kasir</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="konsumsi" title="Konsumsi karyawan" aria-label="Konsumsi karyawan">☕ <span>Konsumsi karyawan</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="pesanan" title="Pesanan" aria-label="Pesanan">▤ <span>Pesanan</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="dashboard" title="Dashboard" aria-label="Dashboard"><x-icon name="home-outline" /><span>Dashboard</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="ringkasan" title="Ringkasan" aria-label="Ringkasan"><x-icon name="stats-chart-outline" /><span>Ringkasan</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="kasir" title="Kasir" aria-label="Kasir"><x-icon name="cash-outline" /><span>Kasir</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="konsumsi" title="Konsumsi karyawan" aria-label="Konsumsi karyawan"><x-icon name="cafe-outline" /><span>Konsumsi karyawan</span></button>
+            <button type="button" class="pos-sidebar-link" data-pos-module-link="pesanan" title="Pesanan" aria-label="Pesanan"><x-icon name="receipt-outline" /><span>Pesanan</span></button>
             @if (auth()->user()->role === 'manager')
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="menu" title="Menu" aria-label="Menu dan HPP">☰ <span>Menu & HPP</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="stok" title="Stok" aria-label="Stok bahan">▦ <span>Stok bahan</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="meja" title="Meja" aria-label="Meja dan QR">▧ <span>Meja & QR</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="kupon" title="Kupon" aria-label="Kupon">％ <span>Kupon</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="pelanggan" title="Pelanggan" aria-label="Pelanggan">♙ <span>Pelanggan</span></button>
-                <a class="pos-sidebar-link" href="{{ route('pos.returns.index') }}" title="Retur" aria-label="Retur penjualan">↩ <span>Retur</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.products.index') }}" title="Produk eceran" aria-label="Produk eceran">▣ <span>Produk eceran</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.purchases.index') }}" title="Pembelian" aria-label="Pembelian">＋ <span>Pembelian</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.expenses.index') }}" title="Pengeluaran" aria-label="Pengeluaran">− <span>Pengeluaran</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.reports.index') }}" title="Laporan" aria-label="Laporan">▥ <span>Laporan</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.promotions.index') }}" title="Promo menu" aria-label="Promo menu">✦ <span>Promo menu</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.bundles.index') }}" title="Paket menu" aria-label="Paket menu">▣ <span>Paket menu</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.settings.index') }}" title="Pengaturan" aria-label="Pengaturan toko">⚙ <span>Pengaturan toko</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.stock-takes.index') }}" title="Stok opname" aria-label="Stok opname">✓ <span>Stok opname</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.barcode-templates.index') }}" title="Cetak barcode" aria-label="Cetak barcode">▤ <span>Cetak barcode</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.users.index') }}" title="Pengguna" aria-label="Pengguna">♙ <span>Pengguna</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.audit.index') }}" title="Audit" aria-label="Audit aktivitas">◷ <span>Audit</span></a>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="menu" title="Menu" aria-label="Menu dan HPP"><x-icon name="restaurant-outline" /><span>Menu & HPP</span></button>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="stok" title="Stok" aria-label="Stok bahan"><x-icon name="cube-outline" /><span>Stok bahan</span></button>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="meja" title="Meja" aria-label="Meja dan QR"><x-icon name="qr-code-outline" /><span>Meja & QR</span></button>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="kupon" title="Kupon" aria-label="Kupon"><x-icon name="pricetag-outline" /><span>Kupon</span></button>
+                <button type="button" class="pos-sidebar-link" data-pos-module-link="pelanggan" title="Pelanggan" aria-label="Pelanggan"><x-icon name="people-outline" /><span>Pelanggan</span></button>
+                <a class="pos-sidebar-link" href="{{ route('pos.returns.index') }}" title="Retur" aria-label="Retur penjualan"><x-icon name="return-up-back-outline" /><span>Retur</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.products.index') }}" title="Produk eceran" aria-label="Produk eceran"><x-icon name="bag-handle-outline" /><span>Produk eceran</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.purchases.index') }}" title="Pembelian" aria-label="Pembelian"><x-icon name="cart-outline" /><span>Pembelian</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.expenses.index') }}" title="Pengeluaran" aria-label="Pengeluaran"><x-icon name="wallet-outline" /><span>Pengeluaran</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.reports.index') }}" title="Laporan" aria-label="Laporan"><x-icon name="bar-chart-outline" /><span>Laporan</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.promotions.index') }}" title="Promo menu" aria-label="Promo menu"><x-icon name="sparkles-outline" /><span>Promo menu</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.bundles.index') }}" title="Paket menu" aria-label="Paket menu"><x-icon name="layers-outline" /><span>Paket menu</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.settings.index') }}" title="Pengaturan" aria-label="Pengaturan toko"><x-icon name="settings-outline" /><span>Pengaturan toko</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.stock-takes.index') }}" title="Stok opname" aria-label="Stok opname"><x-icon name="clipboard-outline" /><span>Stok opname</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.barcode-templates.index') }}" title="Cetak barcode" aria-label="Cetak barcode"><x-icon name="barcode-outline" /><span>Cetak barcode</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.users.index') }}" title="Pengguna" aria-label="Pengguna"><x-icon name="person-outline" /><span>Pengguna</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.audit.index') }}" title="Audit" aria-label="Audit aktivitas"><x-icon name="time-outline" /><span>Audit</span></a>
             @endif
         </nav>
     </aside>
@@ -51,11 +51,11 @@
         <button class="button button-secondary" type="button" data-dashboard-toggle>Dashboard</button>
         <button class="button" type="button" data-pos-module-link="kasir" aria-label="Buka kasir">Buka kasir</button>
         <button class="button button-secondary kitchen-shortcut" type="button" data-pos-module-link="pesanan" aria-label="Pesanan masuk" title="Pesanan masuk">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h18M5 13a7 7 0 0 1 14 0M6 17h12M8 20h8M12 6V3"/></svg>
+            <x-icon name="receipt-outline" />
             <span>Pesanan</span><span class="kitchen-badge" data-pending-order-badge @if ($summary['awaiting_payment'] < 1) hidden @endif>{{ $summary['awaiting_payment'] }}</span>
         </button>
         <button class="button button-secondary printer-status-button" type="button" data-printer-dialog-open aria-haspopup="dialog" aria-controls="printer-dialog" aria-label="Status printer">
-            <svg class="bluetooth-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg>
+            <x-icon name="bluetooth-outline" class="bluetooth-icon" />
             <span class="printer-status-dot" data-printer-status-dot></span>
         </button>
         <form method="POST" action="{{ route('logout') }}">@csrf<button class="button button-secondary" type="submit">Keluar</button></form>
@@ -595,7 +595,7 @@
     </div>
     <div class="menu-actions-row">
         <details>
-            <summary class="button">＋ Tambah menu</summary>
+            <summary class="button"><x-icon name="add-circle-outline" /> Tambah menu</summary>
             <form class="pos-order-form" method="POST" action="{{ route('pos.menus.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="field-group">

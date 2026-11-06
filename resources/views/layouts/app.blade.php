@@ -15,14 +15,14 @@
                 @if (filled($storeSettings['logo_path'] ?? null))
                     <img class="brand-logo" src="{{ asset($storeSettings['logo_path']) }}" alt="Logo {{ $storeSettings['name'] ?? 'toko' }}">
                 @else
-                    <span class="brand-mark">R</span>
+                    <span class="brand-mark"><x-icon name="cafe-outline" /></span>
                 @endif
                 <span>{{ $storeSettings['name'] ?? 'Rasa' }}<span style="color:#6e8d75">.</span></span>
             </a>
             <nav class="nav-links" aria-label="Navigasi utama">
                 @auth
                     <button class="button button-secondary printer-status-button" type="button" data-printer-dialog-open aria-haspopup="dialog" aria-controls="printer-dialog">
-                        <svg class="bluetooth-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg>
+                        <x-icon name="bluetooth-outline" class="bluetooth-icon" />
                         <span class="printer-status-dot" data-printer-status-dot></span>
                         <span class="printer-status-label" data-printer-status-label>Bluetooth web</span>
                     </button>
