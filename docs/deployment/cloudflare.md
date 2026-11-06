@@ -8,6 +8,7 @@ Add these under the repository's **Settings → Secrets and variables → Action
 
 - `CLOUDFLARE_API_TOKEN`: a Cloudflare API token with permission to deploy Workers and manage D1.
 - `CLOUDFLARE_ACCOUNT_ID`: the Cloudflare account ID used by Wrangler.
+- `APP_KEY`: a persistent Laravel encryption key in `base64:` format. Store it as a GitHub Actions secret; never commit it. The deployment uploads it to the Worker secret store, keeping it unchanged across deployments.
 - `INITIAL_SETUP_TOKEN`: a strong, random code that will authorize creation of the first manager account. Do not commit it or send it in chat.
 
 The workflow is manual: push the workflow to the repository, then run **Deploy POS staging to Cloudflare** from the Actions tab. It deploys to `rebuiled-pos-staging` and uses the `containecoffe` D1 database. The workflow initializes only an empty database or verifies that an existing database matches this application's migration history; it refuses a mismatched schema.
