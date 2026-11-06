@@ -6,7 +6,7 @@ The staging deployment runs Laravel with the community Workers PHP runtime and D
 
 Add these under the repository's **Settings → Secrets and variables → Actions**:
 
-- `CLOUDFLARE_API_TOKEN`: a Cloudflare API token with permission to deploy Workers and manage D1.
+- `CLOUDFLARE_API_TOKEN`: an account-scoped Cloudflare API token with **Workers Scripts: Edit** and **D1: Edit** permissions for the account containing `containecoffe`. The workflow checks the token with `wrangler whoami` and then queries D1, so a token that only permits Workers deployment is not sufficient.
 - `CLOUDFLARE_ACCOUNT_ID`: the Cloudflare account ID used by Wrangler.
 - `APP_KEY`: a persistent Laravel encryption key in `base64:` format. Store it as a GitHub Actions secret; never commit it. The deployment uploads it to the Worker secret store, keeping it unchanged across deployments.
 - `INITIAL_SETUP_TOKEN`: a strong, random code that will authorize creation of the first manager account. Do not commit it or send it in chat.
