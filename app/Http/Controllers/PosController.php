@@ -602,13 +602,13 @@ class PosController extends Controller
         return back()->with('success', 'Perubahan kupon berhasil disimpan.');
     }
 
-    public function openShift(Request $request): RedirectResponse
+    public function openShift(Request $request, PosNotificationService $notifications): RedirectResponse
     {
         $data = $request->validate([
             'starting_cash' => ['required', 'integer', 'min:0', 'max:999999999999'],
         ]);
 
-        DB::transaction(function () use ($request, $data): void {
+        DB::transaction(function () use ($request, $data, $notifications): void {
             $alreadyOpen = CashierShift::query()
                 ->where('user_id', $request->user()->id)
                 ->whereNull('closed_at')
@@ -624,6 +624,11 @@ class PosController extends Controller
                 'starting_cash' => $data['starting_cash'],
                 'opened_at' => now(),
             ]);
+            $notifications->notifyStaff(
+                'Shift kasir dibuka',
+                'Shift '.$request->user()->name.' dibuka; pemesanan online tersedia.',
+                route('pos.index', ['module' => 'kasir']),
+            );
         });
 
         return back()->with('success', 'Shift kasir dibuka.');
@@ -636,7 +641,7 @@ class PosController extends Controller
             'closing_note' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $closedShift = DB::transaction(function () use ($request, $data): CashierShift {
+        DB::transaction(function () use ($request, $data, $notifications): void {
             $shift = CashierShift::query()
                 ->where('user_id', $request->user()->id)
                 ->whereNull('closed_at')
@@ -677,13 +682,13 @@ class PosController extends Controller
                 'closed_at' => now(),
             ]);
 
-            return $shift->fresh();
+            $closedShift = $shift->fresh()->load('user');
+            $notifications->notifyStaff(
+                'Shift kasir ditutup',
+                'Shift '.$closedShift->user->name.' ditutup dengan selisih kas Rp'.number_format(abs($closedShift->cash_difference), 0, ',', '.').'.',
+                route('pos.index', ['module' => 'ringkasan']),
+            );
         });
-        $notifications->notifyStaff(
-            'Shift kasir ditutup',
-            'Shift '.$closedShift->user->name.' ditutup dengan selisih kas Rp'.number_format(abs($closedShift->cash_difference), 0, ',', '.').'.',
-            route('pos.index', ['module' => 'ringkasan']),
-        );
 
         return back()->with('success', 'Shift kasir ditutup.');
     }

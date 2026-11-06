@@ -190,24 +190,14 @@ class OrderController extends Controller
 
     public function storeOnline(Request $request, RecipeInventory $inventory, ProductInventory $productInventory, ProductPromotionCalculator $promotions, CouponCalculator $couponCalculator, TransactionChargeCalculator $charges, LoyaltyProgram $loyalty, PosNotificationService $notifications): RedirectResponse
     {
-        $transaction = $this->createTransaction($request, false, $inventory, $productInventory, $promotions, $couponCalculator, $charges, $loyalty);
-        $notifications->notifyStaff(
-            'Pesanan online masuk',
-            'Pesanan '.$transaction->invoice.' dari '.$transaction->customer_name.' menunggu diproses.',
-            route('pos.index', ['module' => 'pesanan']),
-        );
+        $transaction = $this->createTransaction($request, false, $inventory, $productInventory, $promotions, $couponCalculator, $charges, $loyalty, $notifications);
 
         return redirect()->route('orders.show', $transaction->invoice);
     }
 
     public function storePos(Request $request, RecipeInventory $inventory, ProductInventory $productInventory, ProductPromotionCalculator $promotions, CouponCalculator $couponCalculator, TransactionChargeCalculator $charges, LoyaltyProgram $loyalty, PosNotificationService $notifications): RedirectResponse
     {
-        $transaction = $this->createTransaction($request, true, $inventory, $productInventory, $promotions, $couponCalculator, $charges, $loyalty);
-        $notifications->notifyStaff(
-            'Transaksi selesai',
-            'Transaksi '.$transaction->invoice.' sebesar Rp'.number_format($transaction->grand_total, 0, ',', '.').' berhasil dicatat.',
-            route('pos.orders.receipt', $transaction),
-        );
+        $transaction = $this->createTransaction($request, true, $inventory, $productInventory, $promotions, $couponCalculator, $charges, $loyalty, $notifications);
 
         return redirect()->route('pos.orders.receipt', $transaction)
             ->with('success', 'Transaksi '.$transaction->invoice.' berhasil disimpan.')
@@ -237,7 +227,7 @@ class OrderController extends Controller
             'amount_paid' => ['required', 'integer', 'min:0', 'max:999999999999'],
         ]);
 
-        DB::transaction(function () use ($transaction, $data, $inventory, $productInventory, $loyalty): void {
+        DB::transaction(function () use ($transaction, $data, $inventory, $productInventory, $loyalty, $notifications): void {
             $locked = Transaction::query()->lockForUpdate()->findOrFail($transaction->id);
             abort_unless($locked->status === 'pending', 422, 'Hanya pesanan yang belum dibayar dapat diproses.');
             abort_if((int) $data['amount_paid'] < $locked->grand_total, 422, 'Jumlah pembayaran kurang dari total transaksi.');
@@ -271,13 +261,12 @@ class OrderController extends Controller
                 'cogs_complete' => $cogsComplete,
             ]);
             $loyalty->recordSale($locked);
+            $notifications->notifyStaff(
+                'Pembayaran selesai',
+                'Pesanan '.$locked->invoice.' telah dibayar.',
+                route('pos.orders.receipt', $locked),
+            );
         });
-        $transaction->refresh();
-        $notifications->notifyStaff(
-            'Pembayaran selesai',
-            'Pesanan '.$transaction->invoice.' telah dibayar.',
-            route('pos.orders.receipt', $transaction),
-        );
 
         return redirect()->route('pos.orders.receipt', $transaction)
             ->with('success', 'Pembayaran berhasil dicatat.')
@@ -293,42 +282,42 @@ class OrderController extends Controller
             'success' => [],
         ];
 
-        DB::transaction(function () use ($transaction, $data, $allowedTransitions): void {
+        DB::transaction(function () use ($transaction, $data, $allowedTransitions, $notifications): void {
             $locked = Transaction::query()->lockForUpdate()->findOrFail($transaction->id);
             abort_unless($locked->details()->whereNotNull('menu_id')->exists(), 422, 'Transaksi produk eceran tidak masuk ke alur dapur.');
             abort_unless(in_array($data['kitchen_status'], $allowedTransitions[$locked->kitchen_status] ?? [], true), 422, 'Perubahan status dapur tidak valid.');
             abort_if($locked->status === 'cancelled', 422, 'Pesanan yang dibatalkan tidak dapat diproses dapur.');
             $locked->update(['kitchen_status' => $data['kitchen_status']]);
+            if ($data['kitchen_status'] === 'success') {
+                $notifications->notifyStaff(
+                    'Pesanan siap disajikan',
+                    'Pesanan '.$locked->invoice.' selesai diproses dapur.',
+                    route('pos.index', ['module' => 'pesanan']),
+                );
+            }
         });
-        if ($data['kitchen_status'] === 'success') {
-            $notifications->notifyStaff(
-                'Pesanan siap disajikan',
-                'Pesanan '.$transaction->invoice.' selesai diproses dapur.',
-                route('pos.index', ['module' => 'pesanan']),
-            );
-        }
 
         return back()->with('success', 'Status dapur diperbarui.');
     }
 
     public function cancel(Transaction $transaction, PosNotificationService $notifications): RedirectResponse
     {
-        DB::transaction(function () use ($transaction): void {
+        DB::transaction(function () use ($transaction, $notifications): void {
             $locked = Transaction::query()->lockForUpdate()->findOrFail($transaction->id);
             $hasMenuItems = $locked->details()->whereNotNull('menu_id')->exists();
             abort_unless($locked->status === 'pending' && (! $hasMenuItems || $locked->kitchen_status === 'pending'), 422, 'Hanya pesanan belum dibayar dan belum dikerjakan yang dapat dibatalkan.');
             $locked->update(['status' => 'cancelled', 'kitchen_status' => 'cancelled']);
+            $notifications->notifyStaff(
+                'Pesanan dibatalkan',
+                'Pesanan '.$locked->invoice.' dibatalkan.',
+                route('pos.index', ['module' => 'pesanan']),
+            );
         });
-        $notifications->notifyStaff(
-            'Pesanan dibatalkan',
-            'Pesanan '.$transaction->invoice.' dibatalkan.',
-            route('pos.index', ['module' => 'pesanan']),
-        );
 
         return back()->with('success', 'Pesanan dibatalkan.');
     }
 
-    private function createTransaction(Request $request, bool $isPos, RecipeInventory $inventory, ProductInventory $productInventory, ProductPromotionCalculator $promotions, CouponCalculator $couponCalculator, TransactionChargeCalculator $chargeCalculator, LoyaltyProgram $loyalty): Transaction
+    private function createTransaction(Request $request, bool $isPos, RecipeInventory $inventory, ProductInventory $productInventory, ProductPromotionCalculator $promotions, CouponCalculator $couponCalculator, TransactionChargeCalculator $chargeCalculator, LoyaltyProgram $loyalty, PosNotificationService $notifications): Transaction
     {
         $data = $request->validate([
             'customer_name' => [$isPos ? 'nullable' : 'required', 'string', 'max:120'],
@@ -352,7 +341,7 @@ class OrderController extends Controller
 
         $items = $this->normalizeItems($data['items']);
 
-        return DB::transaction(function () use ($data, $items, $request, $isPos, $inventory, $productInventory, $promotions, $couponCalculator, $chargeCalculator, $loyalty): Transaction {
+        return DB::transaction(function () use ($data, $items, $request, $isPos, $inventory, $productInventory, $promotions, $couponCalculator, $chargeCalculator, $loyalty, $notifications): Transaction {
             $shiftQuery = CashierShift::query()->whereNull('closed_at');
 
             if ($isPos) {
@@ -602,6 +591,16 @@ class OrderController extends Controller
                     'cogs_complete' => $cogsComplete,
                 ]);
             }
+
+            $notifications->notifyStaff(
+                $isPos ? 'Transaksi selesai' : 'Pesanan online masuk',
+                $isPos
+                    ? 'Transaksi '.$transaction->invoice.' sebesar Rp'.number_format($transaction->grand_total, 0, ',', '.').' berhasil dicatat.'
+                    : 'Pesanan '.$transaction->invoice.' dari '.$transaction->customer_name.' menunggu diproses.',
+                $isPos
+                    ? route('pos.orders.receipt', $transaction)
+                    : route('pos.index', ['module' => 'pesanan']),
+            );
 
             return $transaction;
         }, attempts: 3);

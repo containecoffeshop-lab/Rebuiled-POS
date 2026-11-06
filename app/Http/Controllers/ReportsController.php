@@ -684,7 +684,7 @@ class ReportsController extends Controller
 
     private function menuMarginReport(array $filters, bool $export = false): array
     {
-        $transactions = Transaction::query()
+        $salesQuery = Transaction::query()
             ->where('transaction_kind', 'sale')
             ->where('status', 'paid')
             ->whereDate('paid_at', '>=', $filters['start_date'])
@@ -695,11 +695,13 @@ class ReportsController extends Controller
                     ->orWhereHas('details', fn (Builder $details) => $details->where('item_name', 'like', '%'.$filters['search'].'%'));
             }))
             ->with('details.recipeDetails')
-            ->get(['id', 'invoice', 'customer_name', 'paid_at', 'coupon_discount', 'loyalty_discount']);
-        $transactionIds = $transactions->modelKeys();
-        $movementCosts = $transactionIds === []
-            ? collect()
-            : DB::table('stock_movements')
+            ->select(['id', 'invoice', 'customer_name', 'paid_at', 'coupon_discount', 'loyalty_discount']);
+        $grouped = collect();
+        $incompleteItems = 0;
+
+        $salesQuery->chunkById(300, function ($transactions) use (&$grouped, &$incompleteItems): void {
+            $transactionIds = $transactions->modelKeys();
+            $movementCosts = DB::table('stock_movements')
                 ->join('material_stock_batches', 'material_stock_batches.id', '=', 'stock_movements.material_stock_batch_id')
                 ->whereIn('stock_movements.transaction_id', $transactionIds)
                 ->where('stock_movements.type', 'out')
@@ -707,51 +709,58 @@ class ReportsController extends Controller
                 ->selectRaw('stock_movements.transaction_id, material_stock_batches.material_id, SUM(stock_movements.quantity) AS quantity, SUM(stock_movements.cost_amount) AS cost_amount, SUM(CASE WHEN stock_movements.cost_amount IS NULL THEN 1 ELSE 0 END) AS missing_cost_count')
                 ->get()
                 ->keyBy(fn (object $row): string => $row->transaction_id.'-'.$row->material_id);
-        $grouped = collect();
-        $incompleteItems = 0;
 
-        foreach ($transactions as $transaction) {
-            $details = $transaction->details->whereNotNull('menu_id');
-            $baseRevenueTotal = $transaction->details->sum(fn ($detail): int => max(0, $detail->line_total - $detail->promotion_discount));
-            $basketDiscount = (int) $transaction->coupon_discount + (int) $transaction->loyalty_discount;
+            foreach ($transactions as $transaction) {
+                $baseRevenueTotal = $transaction->details->sum(fn ($detail): int => max(0, $detail->line_total - $detail->promotion_discount));
+                $basketDiscount = (int) $transaction->coupon_discount + (int) $transaction->loyalty_discount;
+                $allocatedBase = 0;
+                $allocatedDiscount = 0;
 
-            foreach ($details as $detail) {
-                $lineBase = max(0, (int) $detail->line_total - (int) $detail->promotion_discount);
-                $discountShare = $baseRevenueTotal > 0
-                    ? (int) round($basketDiscount * $lineBase / $baseRevenueTotal)
-                    : 0;
-                $revenue = max(0, $lineBase - $discountShare);
-                $cost = 0;
-                $complete = $detail->recipeDetails->isNotEmpty();
-
-                foreach ($detail->recipeDetails as $recipe) {
-                    $movement = $movementCosts->get($transaction->id.'-'.$recipe->material_id);
-                    if (! $movement || (float) $movement->quantity <= 0 || (int) $movement->missing_cost_count > 0) {
-                        $complete = false;
-                        break;
+                foreach ($transaction->details as $detail) {
+                    $lineBase = max(0, (int) $detail->line_total - (int) $detail->promotion_discount);
+                    $allocatedBase += $lineBase;
+                    $nextAllocatedDiscount = $baseRevenueTotal > 0
+                        ? (int) round($basketDiscount * $allocatedBase / $baseRevenueTotal)
+                        : 0;
+                    $discountShare = $nextAllocatedDiscount - $allocatedDiscount;
+                    $allocatedDiscount = $nextAllocatedDiscount;
+                    if ($detail->menu_id === null) {
+                        continue;
                     }
-                    $cost += (int) round((float) $recipe->quantity * ((float) $movement->cost_amount / (float) $movement->quantity));
-                }
 
-                $key = $detail->item_name;
-                $row = $grouped->get($key, [
-                    'item_name' => $detail->item_name,
-                    'quantity' => 0,
-                    'revenue' => 0,
-                    'cogs_total' => 0,
-                    'complete' => true,
-                ]);
-                $row['quantity'] += (int) $detail->quantity;
-                $row['revenue'] += $revenue;
-                $row['complete'] = $row['complete'] && $complete;
-                if ($complete) {
-                    $row['cogs_total'] += $cost;
-                } else {
-                    $incompleteItems++;
+                    $revenue = max(0, $lineBase - $discountShare);
+                    $cost = 0;
+                    $complete = $detail->recipeDetails->isNotEmpty();
+
+                    foreach ($detail->recipeDetails as $recipe) {
+                        $movement = $movementCosts->get($transaction->id.'-'.$recipe->material_id);
+                        if (! $movement || (float) $movement->quantity <= 0 || (int) $movement->missing_cost_count > 0) {
+                            $complete = false;
+                            break;
+                        }
+                        $cost += (int) round((float) $recipe->quantity * ((float) $movement->cost_amount / (float) $movement->quantity));
+                    }
+
+                    $key = $detail->item_name;
+                    $row = $grouped->get($key, [
+                        'item_name' => $detail->item_name,
+                        'quantity' => 0,
+                        'revenue' => 0,
+                        'cogs_total' => 0,
+                        'complete' => true,
+                    ]);
+                    $row['quantity'] += (int) $detail->quantity;
+                    $row['revenue'] += $revenue;
+                    $row['complete'] = $row['complete'] && $complete;
+                    if ($complete) {
+                        $row['cogs_total'] += $cost;
+                    } else {
+                        $incompleteItems++;
+                    }
+                    $grouped->put($key, $row);
                 }
-                $grouped->put($key, $row);
             }
-        }
+        });
 
         $rows = $grouped->map(function (array $row): array {
             $row['cogs'] = $row['complete'] ? $row['cogs_total'] : null;

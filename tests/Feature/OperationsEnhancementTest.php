@@ -34,15 +34,21 @@ class OperationsEnhancementTest extends TestCase
             ->assertJsonPath('notifications.0.title', 'Pesanan online masuk');
 
         $this->markPaid($manager, $order);
+        $this->actingAs($manager)->patch(route('pos.orders.kitchen', $order), ['kitchen_status' => 'onprogress'])
+            ->assertRedirect()->assertSessionHasNoErrors();
+        $this->actingAs($manager)->patch(route('pos.orders.kitchen', $order), ['kitchen_status' => 'success'])
+            ->assertRedirect()->assertSessionHasNoErrors();
         $this->actingAs($manager)->getJson(route('pos.notifications.index'))
             ->assertOk()
-            ->assertJsonPath('unread_count', 2)
-            ->assertJsonPath('notifications.0.title', 'Pembayaran selesai');
+            ->assertJsonPath('unread_count', 3)
+            ->assertJsonPath('notifications.0.title', 'Pesanan siap disajikan');
 
         $notificationId = $manager->notifications()->latest()->firstOrFail()->id;
+        $otherCashier = User::factory()->create(['role' => 'cashier']);
+        $this->actingAs($otherCashier)->patchJson(route('pos.notifications.read', $notificationId))->assertNotFound();
         $this->actingAs($manager)->patchJson(route('pos.notifications.read', $notificationId))
             ->assertOk()
-            ->assertJsonPath('unread_count', 1);
+            ->assertJsonPath('unread_count', 2);
         $this->actingAs($manager)->patchJson(route('pos.notifications.read-all'))
             ->assertOk()
             ->assertJsonPath('unread_count', 0);
@@ -94,6 +100,23 @@ class OperationsEnhancementTest extends TestCase
             ->assertSee('Pemakaian 30 hari')
             ->assertSee('3,000');
         $this->assertSame(0, Purchase::query()->count());
+    }
+
+    public function test_direct_pos_sale_notifies_staff_after_the_transaction_is_saved(): void
+    {
+        $manager = $this->managerWithShift();
+        $menu = $this->menu('Kopi POS');
+
+        $this->actingAs($manager)->post(route('pos.orders.store'), [
+            'transaction_type' => 'takeaway',
+            'items' => [['menu_id' => $menu->id, 'quantity' => 1]],
+            'payment_method' => 'cash',
+            'amount_paid' => $menu->selling_price,
+        ])->assertRedirect();
+
+        $notification = $manager->notifications()->latest()->firstOrFail();
+        $this->assertSame('Transaksi selesai', $notification->data['title']);
+        $this->assertStringContainsString('/kasir/transaksi/', $notification->data['url']);
     }
 
     public function test_menu_margin_report_uses_transaction_recipe_and_batch_cost_snapshots(): void
@@ -171,7 +194,7 @@ class OperationsEnhancementTest extends TestCase
 
         $this->actingAs($manager)->get(route('pos.index', ['module' => 'stok']))
             ->assertOk()
-            ->assertSee('3,000')
+            ->assertSee('2,000')
             ->assertSee('1,000');
         $this->assertSame(1, DB::table('purchase_items')->where('purchase_id', $purchase->id)->count());
     }
