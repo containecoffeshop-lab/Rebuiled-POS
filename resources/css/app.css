@@ -332,7 +332,7 @@ body {
     .brand { gap: 8px; font-size: 16px; }
     .brand-mark { width: 35px; height: 35px; }
     .hero { min-height: 290px; padding: 38px 27px; border-radius: 23px; }
-    .hero:after { right: -9%; font-size: 190px; }
+    .hero-decoration { right: -9%; width: 190px; height: 190px; }
     .menu-grid { gap: 11px; }
     .menu-card { min-height: 235px; padding: 13px; border-radius: 18px; }
     .menu-art { height: 72px; }
@@ -970,4 +970,188 @@ body {
     .shell { max-width: none; padding: 0; }
     .receipt-page { width: 72mm; max-width: none; margin: 0; }
     .receipt-card { padding: 3mm; border: 0; border-radius: 0; box-shadow: none; background: #fff; font-size: 10pt; }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+        color: #eee5db;
+        background: #191512;
+        --glass-surface: rgba(42, 34, 29, .78);
+        --glass-highlight: rgba(65, 53, 45, .88);
+        --glass-border: rgba(236, 218, 198, .13);
+        --glass-shadow: 0 18px 48px rgba(0, 0, 0, .28), 0 3px 12px rgba(0, 0, 0, .16);
+        --glass-blur: 20px;
+    }
+
+    body {
+        color: #eee5db;
+        background-color: #191512;
+        background-image:
+            radial-gradient(ellipse at 8% 2%, rgba(86, 63, 47, .24), transparent 34rem),
+            radial-gradient(ellipse at 94% 24%, rgba(77, 59, 45, .2), transparent 32rem),
+            linear-gradient(145deg, #211a16 0%, #191512 58%, #211a17 100%);
+    }
+
+    ::selection { color: #fff7ed; background: rgba(180, 139, 102, .42); }
+    .topbar {
+        border-bottom-color: rgba(236, 218, 198, .12);
+        background: rgba(32, 26, 22, .76);
+        box-shadow: 0 8px 26px rgba(0, 0, 0, .22);
+    }
+    .nav-link { color: #d3c3b4; }
+    .nav-link:hover { color: #fff0df; background: rgba(255, 255, 255, .08); }
+    .brand-mark {
+        border-color: rgba(255, 255, 255, .16);
+        box-shadow: 0 9px 22px rgba(0, 0, 0, .32), inset 0 1px 0 rgba(255, 255, 255, .18);
+    }
+    .hero {
+        border-color: rgba(255, 255, 255, .14);
+        background:
+            radial-gradient(ellipse at 78% 12%, rgba(255, 255, 255, .12), transparent 34%),
+            linear-gradient(118deg, color-mix(in srgb, var(--brand-primary, #493123), #17110e 24%), var(--brand-accent, #947456));
+        box-shadow: 0 26px 64px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .16);
+    }
+    .hero-note { border-color: rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .1); }
+
+    .menu-card, .panel, .stat-card, .pos-sidebar, .pos-toolbar, .receipt-card {
+        border-color: var(--glass-border);
+        background: var(--glass-surface);
+        box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, .07);
+        -webkit-backdrop-filter: saturate(135%) blur(var(--glass-blur));
+        backdrop-filter: saturate(135%) blur(var(--glass-blur));
+    }
+    .auth-card {
+        border: 1px solid var(--glass-border);
+        background: rgba(42, 34, 29, .94);
+        box-shadow: 14px 14px 30px rgba(0, 0, 0, .34), -8px -8px 24px rgba(61, 49, 41, .32), inset 0 1px 0 rgba(255, 255, 255, .07);
+    }
+    .auth-card h1 { color: #f0e5d9; }
+    .auth-card > p { color: #b7a89b; }
+    .menu-card { background: linear-gradient(150deg, rgba(62, 49, 41, .88), rgba(39, 32, 27, .88)); }
+    .menu-card:hover { border-color: rgba(236, 218, 198, .2); box-shadow: 0 24px 42px rgba(0, 0, 0, .32), inset 0 1px 0 rgba(255, 255, 255, .1); }
+    .menu-art { background: linear-gradient(145deg, rgba(74, 59, 48, .9), rgba(45, 37, 31, .9)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 8px 20px rgba(0, 0, 0, .2); }
+    .section-heading h2, .panel-head h2, .dashboard-head h1,
+    .menu-card h3, .pos-item h3, .checkout-dialog-head h2, .cart-dialog-head h2,
+    .details-dialog-head h2, .settings-subheading { color: #f0e5d9; }
+    .section-heading p, .panel-head p, .dashboard-head p, .pos-item p,
+    .menu-description, .cart-hint, .menu-cost-note, .field-label, .stat-label,
+    .order-meta, .cart-line-price, .menu-variant-option small { color: #b7a89b; }
+    .menu-category { color: #c1a78f; }
+    .price, .stat-value, .employee-consumption-total { color: #e3c5a5; }
+    .eyebrow { color: #d3ad87; }
+    .eyebrow[style*="color:#65806c"] { color: #d3ad87 !important; }
+    .page-footer { color: #b7a89b; border-color: rgba(236, 218, 198, .14); }
+
+    .button {
+        border-color: rgba(255, 255, 255, .14);
+        background: linear-gradient(145deg, color-mix(in srgb, var(--brand-accent, #947456), #74604e 34%), color-mix(in srgb, var(--brand-primary, #493123), #211a16 12%));
+        box-shadow: 0 8px 18px rgba(0, 0, 0, .3), inset 0 1px 0 rgba(255, 255, 255, .12);
+    }
+    .button:hover { box-shadow: 0 12px 24px rgba(0, 0, 0, .38), inset 0 1px 0 rgba(255, 255, 255, .15); }
+    .button-secondary {
+        border-color: rgba(236, 218, 198, .14);
+        color: #e3d4c6;
+        background: rgba(54, 44, 37, .82);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255, 255, 255, .08);
+    }
+    .button-danger { background: linear-gradient(145deg, #a96452, #743d32); }
+    .filter-chip {
+        border: 1px solid rgba(236, 218, 198, .12);
+        color: #d1c1b2;
+        background: rgba(48, 39, 33, .9);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255, 255, 255, .06);
+    }
+    .filter-chip.active { color: #fff; background: linear-gradient(145deg, #8b674b, #5b3e2d); }
+    .field {
+        border-color: rgba(236, 218, 198, .16);
+        color: #f0e5d9;
+        background: rgba(34, 28, 24, .88);
+        box-shadow: inset 0 2px 7px rgba(0, 0, 0, .24), 0 1px 0 rgba(255, 255, 255, .04);
+    }
+    .field::placeholder { color: #a9998c; }
+    .field:focus {
+        border-color: rgba(193, 151, 111, .7);
+        background: #2a221d;
+        box-shadow: 0 0 0 4px rgba(170, 125, 88, .18), inset 0 1px 3px rgba(0, 0, 0, .22);
+    }
+    .field option { color: #f0e5d9; background: #2a221d; }
+
+    .pos-sidebar-link { color: #d0c0b1; }
+    .pos-sidebar-link:hover, .pos-sidebar-link.active {
+        color: #f0d7bd;
+        background: rgba(96, 73, 55, .42);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 5px 14px rgba(0, 0, 0, .22);
+    }
+    .pos-item, .menu-variant-option {
+        border-color: rgba(236, 218, 198, .12);
+        color: #eee5db;
+        background: rgba(49, 40, 34, .86);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 255, 255, .06);
+    }
+    .pos-item:hover, .menu-variant-option:hover { background: rgba(65, 52, 43, .95); box-shadow: 0 12px 25px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .08); }
+    .pos-order-form, .printer-method-card, .empty-state, .change-summary {
+        border-color: rgba(236, 218, 198, .12);
+        color: #e6dbd0;
+        background: rgba(45, 36, 30, .84);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 8px 20px rgba(0, 0, 0, .18);
+    }
+    .checkout-dialog, .cart-dialog, .details-dialog, .printer-dialog {
+        border-color: rgba(236, 218, 198, .18);
+        color: #eee5db;
+        background: rgba(36, 29, 25, .97);
+        box-shadow: 0 32px 100px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .08);
+    }
+    .checkout-dialog::backdrop, .cart-dialog::backdrop, .details-dialog::backdrop, .printer-dialog::backdrop { background: rgba(8, 6, 5, .68); }
+    .checkout-dialog-head, .cart-dialog-head, .details-dialog-head {
+        border-color: rgba(236, 218, 198, .14);
+        background: rgba(53, 42, 35, .92);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 8px 20px rgba(0, 0, 0, .2);
+    }
+    .checkout-review-line, .cart-line, .menu-variants-editor { border-color: rgba(236, 218, 198, .14); }
+    .cashier-cart-table th, .cashier-cart-table td, .menu-table th, .menu-table td { border-color: rgba(236, 218, 198, .14); }
+    .cashier-cart-table th, .menu-table th { color: #d3c1b0; }
+    .menu-table th { background: rgba(70, 55, 44, .9); }
+    .menu-table td { color: #e7ddd3; }
+    .summary-chart-gridline { stroke: rgba(236, 218, 198, .13); }
+    .summary-chart-axis { fill: #b7a89b; }
+    .summary-chart-line.income { stroke: #b99878; }
+    .summary-chart-line.expense { stroke: #d68f73; }
+    .summary-chart-line.target { stroke: #aab4ce; }
+    .summary-chart-point { stroke: #221a16; }
+    .summary-chart-point.income { fill: #b99878; }
+    .summary-chart-point.expense { fill: #d68f73; }
+    .summary-chart-point.target { fill: #aab4ce; }
+    .summary-chart-legend { color: #d0c0b1; }
+    .summary-legend-dot { background: #b99878; }
+    .summary-legend-dot.expense { background: #d68f73; }
+    .summary-legend-dot.target { background: #aab4ce; }
+    .summary-chart-wrap { border-color: rgba(236, 218, 198, .13); background: rgba(43, 34, 29, .68); }
+    .track-number { color: #ecd3b8; background: #392d25; box-shadow: inset 3px 3px 7px rgba(0, 0, 0, .3), inset -3px -3px 7px rgba(255, 255, 255, .04); }
+    .status-tag, .status-tag.success, .status-tag.paid { color: #b8dfc0; background: #294031; border-color: rgba(184, 223, 192, .12); }
+    .status-tag.pending { color: #efd39a; background: #493b25; border-color: rgba(239, 211, 154, .12); }
+    .status-tag.onprogress { color: #c1d5f1; background: #2b3c52; border-color: rgba(193, 213, 241, .12); }
+    .status-tag.cancelled { color: #f0b5aa; background: #4a2d29; border-color: rgba(240, 181, 170, .12); }
+    .alert { color: #c4e5cf; background: #263b2d; border-color: rgba(196, 229, 207, .12); }
+    .alert-error { color: #f0b8ad; background: #472b27; border-color: rgba(240, 184, 173, .12); }
+    .error-text { color: #f0b8ad; }
+    .theme-preview {
+        border-color: rgba(236, 218, 198, .14);
+        background: #29211c;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .06);
+    }
+    .theme-preview strong { color: #f0e5d9; }
+    .theme-preview > span:not(.theme-preview-label) { color: #b7a89b; }
+    .upload-preview { border-color: rgba(236, 218, 198, .16); background: #2a221d; }
+    .pos-workspace:not(.cashier-mode) .pos-sidebar {
+        background: rgba(37, 30, 25, .94);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(255, 255, 255, .08);
+    }
+    .pos-workspace:not(.cashier-mode) .pos-sidebar-link > span { color: #c8b7a8; }
+    .cashier-mode .pos-toolbar {
+        background: rgba(37, 30, 25, .94);
+        box-shadow: 0 16px 38px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .08);
+    }
+    .printer-connection-state { color: #f0b8ad; }
+    .printer-connection-state.connected { color: #b8dfc0; }
 }
