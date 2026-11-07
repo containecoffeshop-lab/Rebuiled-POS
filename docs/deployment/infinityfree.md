@@ -14,6 +14,8 @@ Dokumen ini untuk persiapan, **bukan bukti aplikasi sudah kompatibel atau aman u
 
 Skema dibuat dari 38 migrasi pada MariaDB lokal yang terisolasi, dengan catatan `migrations` dan `setup_state` awal; tidak mencakup akun, menu, transaksi, foto atau logo lokal. Versi database dan konfigurasi pada akun InfinityFree dapat berbeda, sehingga impor dan alur transaksi tetap harus diuji di sana. Bila batas ukuran/jumlah berkas hosting menggagalkan unggahan, jangan menganggap instalasi lengkap; gunakan FTP sesuai kebijakan penyedia atau hosting yang memadai.
 
+Setelah login dan menguji transaksi contoh, tutup shift dan periksa popup ringkasan serta cetaknya. Ringkasan hanya menghitung penjualan lunas dalam shift tersebut pada tanggal penutupan, dikurangi modal kas awal; jumlahnya bukan laba maupun saldo kas.
+
 ## Batasan dan pemeriksaan awal
 
 Menurut [panduan InfinityFree untuk Laravel](https://forum.infinityfree.com/t/how-to-install-a-laravel-site-on-infinityfree/118578), paket gratis tidak menyediakan shell/Artisan, cron, worker antrean atau symlink, dan memiliki batas sumber daya serta jumlah berkas. Pastikan PHP hosting mendukung PHP 8.2+, ekstensi Laravel, PDO MySQL, dan GD termasuk dukungan format gambar yang diperlukan. Periksa kapasitas, batas unggahan, HTTPS, dan koneksi FTP terenkripsi yang benar-benar tersedia pada akun. Jika akses FTP tidak terenkripsi, jangan gunakan jaringan tidak tepercaya dan pertimbangkan hosting dengan SFTP.
