@@ -72,6 +72,24 @@ addIcons({
 });
 defineCustomElement();
 
+document.querySelectorAll('body[data-staff-workspace] main form').forEach((form) => {
+    if (form.method.toLowerCase() !== 'post'
+        || form.closest('details, dialog, table, .shift-panel, [data-pos-module="kasir"], .order-card, .summary-reset')
+        || form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]), select, textarea').length < 2) return;
+
+    const section = form.closest('section, article');
+    const heading = form.querySelector('h2, h3, legend') || section?.querySelector('h2, h3');
+    const label = heading?.textContent.trim() || 'Formulir';
+    const details = document.createElement('details');
+    details.className = 'feature-disclosure';
+    details.open = Boolean(document.querySelector('.alert-error')) || Boolean(location.hash && (form.id === location.hash.slice(1) || form.closest(location.hash)));
+    const summary = document.createElement('summary');
+    summary.className = 'button button-secondary';
+    summary.textContent = `Buka ${label.toLocaleLowerCase('id-ID')}`;
+    form.before(details);
+    details.append(summary, form);
+});
+
 document.querySelectorAll('details > summary').forEach((summary) => {
     if (summary.querySelector('.details-chevron')) return;
     const chevron = document.createElement('ion-icon');

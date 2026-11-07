@@ -27,6 +27,7 @@ use App\Services\PosNotificationService;
 use App\Services\ProductInventory;
 use App\Services\PurchaseRecommendation;
 use App\Services\RecipeInventory;
+use App\Services\SummaryPeriod;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -49,6 +50,7 @@ class PosController extends Controller
 
     public function index(Request $request, RecipeInventory $inventory, ProductInventory $productInventory, PurchaseRecommendation $purchaseRecommendation): View
     {
+        $period = app(SummaryPeriod::class);
         $filters = array_merge([
             'search' => '',
             'status' => 'all',
@@ -102,8 +104,8 @@ class PosController extends Controller
             ->paginate(12);
 
         $summary = [
-            'sales_today' => Transaction::query()->where('transaction_kind', 'sale')->whereDate('created_at', $today)->where('status', 'paid')->sum('grand_total'),
-            'orders_today' => Transaction::query()->where('transaction_kind', 'sale')->whereDate('created_at', $today)->where('status', '!=', 'cancelled')->count(),
+            'sales_today' => Transaction::query()->where('transaction_kind', 'sale')->whereDate('created_at', $today)->where('status', 'paid')->when($period->start(), fn ($q) => $period->timestamp($q, 'created_at'))->sum('grand_total'),
+            'orders_today' => Transaction::query()->where('transaction_kind', 'sale')->whereDate('created_at', $today)->where('status', '!=', 'cancelled')->when($period->start(), fn ($q) => $period->timestamp($q, 'created_at'))->count(),
             'awaiting_payment' => Transaction::query()->where('status', 'pending')->count(),
             'in_kitchen' => Transaction::query()->whereIn('kitchen_status', ['pending', 'onprogress'])->where('status', '!=', 'cancelled')->count(),
         ];
@@ -118,6 +120,7 @@ class PosController extends Controller
             ->where('transactions.transaction_kind', 'sale')
             ->where('transactions.status', 'paid')
             ->where('stock_movements.type', 'out')
+            ->when($period->start(), fn ($q) => $period->timestamp($q, 'stock_movements.created_at'))
             ->whereDate('stock_movements.created_at', '>=', $monthStart)
             ->whereDate('stock_movements.created_at', '<=', $monthEnd);
         $ingredientCostIncomplete = (clone $ingredientMovementQuery)->whereNull('stock_movements.cost_amount')->exists();
@@ -128,9 +131,11 @@ class PosController extends Controller
             ->where('transaction_kind', 'employee_consumption')
             ->where('status', 'consumed')
             ->where('cogs_complete', true)
+            ->when($period->start(), fn ($q) => $period->timestamp($q, 'created_at'))
             ->whereBetween('created_at', [$monthDate->copy()->startOfMonth(), $monthDate->copy()->endOfMonth()])
             ->sum('cogs_total');
         $expenseTotal = (int) DB::table('expenses')
+            ->when($period->start(), fn ($q) => $period->dated($q, 'expenses', 'expense_date'))
             ->whereDate('expense_date', '>=', $monthStart)
             ->whereDate('expense_date', '<=', $monthEnd)
             ->sum('amount');
@@ -138,11 +143,12 @@ class PosController extends Controller
             'income' => Transaction::query()
                 ->where('transaction_kind', 'sale')
                 ->where('status', 'paid')
+                ->when($period->start(), fn ($q) => $period->timestamp($q, 'paid_at'))
                 ->whereYear('paid_at', $year)
                 ->whereMonth('paid_at', $month)
                 ->sum('grand_total'),
             'expenses' => auth()->user()->role === 'manager'
-                ? DB::table('expense_payments')->whereYear('paid_at', $year)->whereMonth('paid_at', $month)->sum('amount')
+                ? DB::table('expense_payments')->when($period->start(), fn ($q) => $period->dated($q, 'expense_payments', 'paid_at'))->whereYear('paid_at', $year)->whereMonth('paid_at', $month)->sum('amount')
                 : null,
             'ingredient_cost' => auth()->user()->role === 'manager' ? $ingredientCost : null,
             'employee_consumption_cost' => auth()->user()->role === 'manager' ? $employeeConsumptionCost : null,
@@ -158,6 +164,7 @@ class PosController extends Controller
             ->whereNotNull('transaction_details.menu_id')
             ->where('transactions.transaction_kind', 'sale')
             ->where('transactions.status', 'paid')
+            ->when($period->start(), fn ($q) => $period->timestamp($q, 'transactions.paid_at'))
             ->whereBetween('transactions.paid_at', [$monthDate->copy()->startOfMonth(), $monthDate->copy()->endOfMonth()])
             ->groupBy('transaction_details.menu_id')
             ->selectRaw('transaction_details.menu_id, SUM(transaction_details.quantity) as quantity, SUM(transaction_details.line_total) as item_sales')
@@ -187,11 +194,13 @@ class PosController extends Controller
         $dailyIncome = Transaction::query()
             ->where('transaction_kind', 'sale')
             ->where('status', 'paid')
+            ->when($period->start(), fn ($q) => $period->timestamp($q, 'paid_at'))
             ->whereBetween('paid_at', [$monthDate->copy()->startOfMonth(), $monthDate->copy()->endOfMonth()])
             ->selectRaw('date(paid_at) as day, SUM(grand_total) as total')
             ->groupBy('day')
             ->pluck('total', 'day');
         $dailyExpenses = DB::table('expense_payments')
+            ->when($period->start(), fn ($q) => $period->dated($q, 'expense_payments', 'paid_at'))
             ->whereBetween('paid_at', [$monthStart, $monthEnd])
             ->selectRaw('paid_at as day, SUM(amount) as total')
             ->groupBy('paid_at')
@@ -331,6 +340,7 @@ class PosController extends Controller
             'initialCart' => $initialCart,
             'transactions' => $transactions,
             'summary' => $summary,
+            'summaryStart' => $period->start(),
             'monthlySummary' => $monthlySummary,
             'dailySummary' => $dailySummary,
             'topMenus' => $topMenus,
@@ -352,6 +362,15 @@ class PosController extends Controller
         ]);
     }
 
+    public function resetSummary(Request $request): RedirectResponse
+    {
+        $request->validate(['confirmation' => ['required', 'in:RESET']]);
+        SummaryPeriod::reset();
+
+        return redirect()->route('pos.index', ['module' => 'ringkasan'])
+            ->with('success', 'Periode ringkasan baru dimulai. Riwayat transaksi dan laporan tetap tersimpan.');
+    }
+
     public function exportSummary(Request $request): StreamedResponse
     {
         $selectedMonth = $request->validate(['month' => ['nullable', 'date_format:Y-m']])['month'] ?? now()->format('Y-m');
@@ -365,6 +384,7 @@ class PosController extends Controller
             echo '<Styles><Style ss:ID="Title"><Font ss:Bold="1" ss:Size="16" ss:Color="#355E49"/></Style><Style ss:ID="Section"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#527A68" ss:Pattern="Solid"/></Style><Style ss:ID="Header"><Font ss:Bold="1"/><Interior ss:Color="#E3E9E1" ss:Pattern="Solid"/></Style><Style ss:ID="Currency"><NumberFormat ss:Format="&quot;Rp&quot; #,##0"/></Style></Styles>';
             echo '<Worksheet ss:Name="Ringkasan"><Table>';
             echo $this->spreadsheetRow(['Ringkasan POS · '.$data['month_label']], 'Title');
+            echo $this->spreadsheetRow(['Periode aktif sejak', $data['summary_start']?->format('d/m/Y H:i:s') ?? 'Seluruh riwayat']);
             echo $this->spreadsheetRow(['Indikator', 'Nilai'], 'Header');
             foreach ($data['metrics'] as $label => $value) {
                 echo $this->spreadsheetRow([$label, $value]);
@@ -427,18 +447,21 @@ class PosController extends Controller
 
     private function summaryData(string $selectedMonth): array
     {
+        $period = app(SummaryPeriod::class);
         $monthDate = Carbon::createFromFormat('!Y-m', $selectedMonth);
         $monthStart = $monthDate->copy()->startOfMonth();
         $monthEnd = $monthDate->copy()->endOfMonth();
         $sales = Transaction::query()
             ->where('transaction_kind', 'sale')
             ->where('status', 'paid')
+            ->when($period->start(), fn ($q) => $period->timestamp($q, 'paid_at'))
             ->whereBetween('paid_at', [$monthStart, $monthEnd])
             ->with('details')
             ->orderBy('paid_at')
             ->get();
         $expenses = DB::table('expenses')
             ->join('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
+            ->when($period->start(), fn ($q) => $period->dated($q, 'expenses', 'expenses.expense_date'))
             ->whereBetween('expenses.expense_date', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->orderBy('expenses.expense_date')
             ->get([
@@ -451,6 +474,7 @@ class PosController extends Controller
                 'expense_categories.name as category_name',
             ]);
         $expensePayments = DB::table('expense_payments')
+            ->when($period->start(), fn ($q) => $period->dated($q, 'expense_payments', 'paid_at'))
             ->whereBetween('paid_at', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->selectRaw('paid_at as day, SUM(amount) as total')
             ->groupBy('paid_at')
@@ -458,6 +482,7 @@ class PosController extends Controller
         $dailyIncome = $sales->groupBy(fn (Transaction $transaction): string => $transaction->paid_at->toDateString())
             ->map(fn ($transactions): int => (int) $transactions->sum('grand_total'));
         $expenseTotal = (int) DB::table('expenses')
+            ->when($period->start(), fn ($q) => $period->dated($q, 'expenses', 'expense_date'))
             ->whereBetween('expense_date', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->sum('amount');
         $ingredientQuery = DB::table('stock_movements')
@@ -465,6 +490,7 @@ class PosController extends Controller
             ->where('transactions.transaction_kind', 'sale')
             ->where('transactions.status', 'paid')
             ->where('stock_movements.type', 'out')
+            ->when($period->start(), fn ($q) => $period->timestamp($q, 'stock_movements.created_at'))
             ->whereBetween('stock_movements.created_at', [$monthStart, $monthEnd]);
         $ingredientCostIncomplete = (clone $ingredientQuery)->whereNull('stock_movements.cost_amount')->exists();
         $ingredientCost = $ingredientCostIncomplete ? null : (int) (clone $ingredientQuery)->sum('stock_movements.cost_amount');
@@ -472,6 +498,7 @@ class PosController extends Controller
             ->where('transaction_kind', 'employee_consumption')
             ->where('status', 'consumed')
             ->where('cogs_complete', true)
+            ->when($period->start(), fn ($q) => $period->timestamp($q, 'created_at'))
             ->whereBetween('created_at', [$monthStart, $monthEnd])
             ->sum('cogs_total');
         $incomeTotal = (int) $sales->sum('grand_total');
@@ -496,6 +523,7 @@ class PosController extends Controller
         return [
             'month' => $selectedMonth,
             'month_label' => $monthDate->locale('id')->translatedFormat('F Y'),
+            'summary_start' => $period->start(),
             'days_in_month' => $monthDate->daysInMonth,
             'sales' => $sales,
             'expenses' => $expenses,

@@ -38,6 +38,7 @@
     </div>
     <h1>Ringkasan Penjualan &amp; Operasional</h1>
     <p>{{ $month_label }} · {{ $days_in_month }} hari kalender</p>
+    <p>Periode ringkasan aktif: {{ $summary_start ? 'sejak '.$summary_start->format('d/m/Y H:i:s') : 'seluruh riwayat' }}. Riwayat sebelumnya tetap tersedia pada laporan.</p>
     <div class="grid">
         @foreach ($metrics as $label => $value)
             <div class="metric">

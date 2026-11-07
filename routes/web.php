@@ -122,6 +122,7 @@ Route::middleware(['auth', 'active', 'module.access', 'audit.write'])->prefix('k
     Route::post('/shift/tutup', [PosController::class, 'closeShift'])->name('shift.close');
     Route::get('/ringkasan/ekspor', [PosController::class, 'exportSummary'])->middleware('role:manager')->name('summary.export');
     Route::get('/ringkasan/pdf', [PosController::class, 'exportSummaryPdf'])->middleware('role:manager')->name('summary.pdf');
+    Route::post('/ringkasan/reset', [PosController::class, 'resetSummary'])->middleware('role:manager')->name('summary.reset');
     Route::post('/meja', [PosController::class, 'storeDiningTable'])->middleware('role:manager')->name('tables.store');
     Route::patch('/meja/{table}/kosongkan', [PosController::class, 'clearDiningTable'])->name('tables.clear');
     Route::post('/kupon', [PosController::class, 'storeCoupon'])->middleware('role:manager')->name('coupons.store');

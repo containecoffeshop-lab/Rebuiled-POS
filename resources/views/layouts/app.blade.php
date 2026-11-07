@@ -8,7 +8,7 @@
     <meta name="description" content="Menu dan pemesanan {{ $storeSettings['name'] ?? 'Rasa' }}.">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body style="--brand-primary: {{ $storeSettings['brand_primary'] ?? '#493123' }}; --brand-accent: {{ $storeSettings['brand_accent'] ?? '#947456' }}; --brand-background: {{ $storeSettings['brand_background'] ?? '#faf8f5' }}" @if (request()->routeIs('pos.index') && request('module', 'kasir') === 'kasir') class="pos-screen" @endif>
+<body style="--brand-primary: {{ $storeSettings['brand_primary'] ?? '#493123' }}; --brand-accent: {{ $storeSettings['brand_accent'] ?? '#947456' }}; --brand-background: {{ $storeSettings['brand_background'] ?? '#faf8f5' }}" @if (request()->routeIs('pos.index') && request('module', 'kasir') === 'kasir') class="pos-screen" @endif @if (request()->routeIs('pos.*') && ! request()->routeIs('pos.orders.receipt', 'pos.summary.pdf', 'pos.barcode-templates.print')) data-staff-workspace @endif>
     <header class="topbar">
         <div class="shell nav">
             <a class="brand" href="{{ route('home') }}">

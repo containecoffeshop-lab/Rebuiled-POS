@@ -66,6 +66,19 @@
         @endif
     </form>
 <div class="panel-head"><div><h2>Ringkasan dan statistik</h2><p>Rekap penjualan, target, tren harian, dan performa menu untuk bulan terpilih.</p></div></div>
+<p class="cart-hint">Periode ringkasan: {{ $summaryStart ? 'sejak '.$summaryStart->locale('id')->translatedFormat('d M Y, H:i:s') : 'seluruh riwayat' }}. Pesanan aktif tetap ditampilkan. Laporan dan riwayat tidak dihapus.</p>
+@if (auth()->user()->role === 'manager')
+<details class="summary-reset">
+    <summary class="button button-secondary button-small">Reset periode ringkasan</summary>
+    <form method="POST" action="{{ route('pos.summary.reset') }}" onsubmit="return confirm('Mulai periode ringkasan baru? Statistik sebelumnya tidak akan muncul di ringkasan atau ekspornya. Transaksi, stok, dan laporan tetap tersimpan.')">
+        @csrf
+        <p class="cart-hint">Statistik dan ekspor ringkasan dihitung ulang mulai saat reset. Data lama tetap ada di modul laporan. Pengeluaran dengan tanggal sebelum periode baru tidak dihitung.</p>
+        <label class="field-label" for="summary-reset-confirmation">Ketik RESET untuk mengonfirmasi</label>
+        <input class="field" id="summary-reset-confirmation" name="confirmation" pattern="RESET" required autocomplete="off">
+        <button class="button button-danger" type="submit">Mulai periode baru</button>
+    </form>
+</details>
+@endif
 <div class="stats-grid">
     <article class="stat-card"><span class="stat-label">Penjualan hari ini</span><strong class="stat-value">Rp{{ number_format($summary['sales_today'], 0, ',', '.') }}</strong></article>
     <article class="stat-card"><span class="stat-label">Transaksi hari ini</span><strong class="stat-value">{{ number_format($summary['orders_today'], 0, ',', '.') }}</strong></article>

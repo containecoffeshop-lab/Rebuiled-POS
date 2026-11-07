@@ -24,6 +24,7 @@ use App\Models\Unit;
 use App\Models\User;
 use App\Services\RecipeInventory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -57,7 +58,7 @@ class OrderFlowTest extends TestCase
 
     public function test_all_active_kitchen_orders_are_completed_without_changing_payment(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         $menu = $this->menu(22000);
         $user = $this->openShift();
         for ($i = 0; $i < 13; $i++) {
