@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuditEventController;
+use App\Http\Controllers\CycleCountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeTemplateController;
 use App\Http\Controllers\ExpenseController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\StockTakeController;
 use App\Http\Controllers\StoreSettingsController;
 use App\Http\Controllers\TransactionReturnController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\RecordAuditEvent;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [OrderController::class, 'menu'])->name('home');
@@ -38,8 +40,13 @@ Route::post('/admin/keluar', [AuthController::class, 'destroy'])->middleware('au
 
 Route::middleware(['auth', 'active', 'audit.write'])->prefix('kasir')->name('pos.')->group(function () {
     Route::get('/', [PosController::class, 'index'])->name('index');
+    Route::get('/cycle-count', [CycleCountController::class, 'index'])->name('cycle-counts.index');
+    Route::post('/cycle-count', [CycleCountController::class, 'store'])->middleware('role:manager')->name('cycle-counts.store');
+    Route::post('/cycle-count/{task}/hitung', [CycleCountController::class, 'count'])->name('cycle-counts.count');
+    Route::post('/cycle-count/{task}/setujui', [CycleCountController::class, 'approve'])->middleware('role:manager')->name('cycle-counts.approve');
     Route::get('/pesanan/menunggu/count', [PosController::class, 'pendingOrderCount'])->middleware('throttle:30,1')->name('orders.pending-count');
     Route::get('/notifikasi', [PosNotificationController::class, 'index'])->middleware('throttle:30,1')->name('notifications.index');
+    Route::post('/notifikasi/periksa-stok', [PosNotificationController::class, 'checkStock'])->middleware('throttle:30,1')->withoutMiddleware(RecordAuditEvent::class)->name('notifications.stock');
     Route::patch('/notifikasi/{notificationId}/baca', [PosNotificationController::class, 'markRead'])->name('notifications.read');
     Route::patch('/notifikasi/baca-semua', [PosNotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/loyalitas/periksa', [OrderController::class, 'quotePos'])->middleware('throttle:30,1')->name('loyalty.quote');
@@ -54,6 +61,7 @@ Route::middleware(['auth', 'active', 'audit.write'])->prefix('kasir')->name('pos
     Route::patch('/pengguna/{user}/status', [UserController::class, 'toggleActive'])->middleware('role:manager')->name('users.toggle');
     Route::get('/pengaturan-toko', [StoreSettingsController::class, 'index'])->middleware('role:manager')->name('settings.index');
     Route::put('/pengaturan-toko', [StoreSettingsController::class, 'update'])->middleware('role:manager')->name('settings.update');
+    Route::put('/pengaturan-toko/shift', [StoreSettingsController::class, 'updateShiftTimes'])->middleware('role:manager')->name('settings.shifts.update');
     Route::put('/pengaturan-toko/notifikasi', [StoreSettingsController::class, 'updateNotifications'])->middleware('role:manager')->name('settings.notifications.update');
     Route::put('/pengaturan-toko/loyalitas', [StoreSettingsController::class, 'updateLoyalty'])->middleware('role:manager')->name('settings.loyalty.update');
     Route::put('/pengaturan-toko/biaya', [StoreSettingsController::class, 'updateCharges'])->middleware('role:manager')->name('settings.charges.update');

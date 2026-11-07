@@ -9,12 +9,28 @@
 </div>
 
 <section class="panel">
+    <h2>Jadwal shift</h2>
+    <p class="cart-hint">Jam hanya informasi; pembukaan shift tidak dibatasi waktu. Shift dapat melewati tengah malam.</p>
+    <form method="POST" action="{{ route('pos.settings.shifts.update') }}" class="pos-order-form">
+        @csrf @method('PUT')
+        @foreach ([1, 2] as $number)
+            <div class="inline-form">
+                <strong>Shift {{ $number }}</strong>
+                <label>Mulai <input class="field" type="time" name="shift_{{ $number }}_start" value="{{ old('shift_'.$number.'_start', $settings['shift_'.$number.'_start'] ?? '') }}"></label>
+                <label>Selesai <input class="field" type="time" name="shift_{{ $number }}_end" value="{{ old('shift_'.$number.'_end', $settings['shift_'.$number.'_end'] ?? '') }}"></label>
+            </div>
+        @endforeach
+        <button class="button" type="submit">Simpan jadwal shift</button>
+    </form>
+</section>
+
+<section class="panel">
     <div class="panel-head"><div><h2>Notifikasi per peran</h2><p>Jenis yang dipilih dikirim untuk peristiwa baru. Notifikasi lama tetap tersedia; suara diaktifkan masing-masing perangkat pada lonceng.</p></div></div>
     <form method="POST" action="{{ route('pos.settings.notifications.update') }}">
         @csrf @method('PUT')
         @foreach (\App\Services\PosNotificationService::ROLES as $role => $label)
             @php
-                $saved = isset($settings['notification_categories_'.$role]) ? json_decode($settings['notification_categories_'.$role], true, flags: JSON_THROW_ON_ERROR) : array_keys(\App\Services\PosNotificationService::CATEGORIES);
+                $saved = isset($settings['notification_categories_'.$role]) ? json_decode($settings['notification_categories_'.$role], true, flags: JSON_THROW_ON_ERROR) : array_values(array_filter(array_keys(\App\Services\PosNotificationService::CATEGORIES), fn ($category) => $role === 'manager' || $category !== 'stock'));
                 $selected = old('categories.'.$role, $saved);
             @endphp
             <fieldset>

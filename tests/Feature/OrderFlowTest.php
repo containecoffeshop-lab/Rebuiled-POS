@@ -1239,7 +1239,7 @@ class OrderFlowTest extends TestCase
             ->assertSee('Buat transaksi')
             ->assertSee('Ringkasan');
 
-        $this->post(route('pos.shift.open'), ['starting_cash' => 50000])
+        $this->post(route('pos.shift.open'), ['starting_cash' => 50000, 'shift_number' => 1])
             ->assertRedirect()
             ->assertSessionHasNoErrors();
         $this->assertDatabaseHas('cashier_shifts', ['user_id' => $cashier->id, 'starting_cash' => 50000, 'closed_at' => null]);

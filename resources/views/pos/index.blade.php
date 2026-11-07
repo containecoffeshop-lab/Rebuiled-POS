@@ -15,6 +15,7 @@
     <aside class="pos-sidebar" aria-label="Navigasi modul">
         <button class="button button-secondary pos-sidebar-toggle" type="button" data-sidebar-toggle aria-expanded="true" aria-label="Minimalkan navigasi"><x-icon name="chevron-back-outline" /><x-icon name="chevron-forward-outline" /><span data-sidebar-toggle-label>Minimalkan</span></button>
         <nav class="pos-sidebar-nav">
+            <a class="pos-sidebar-link" href="{{ route('pos.cycle-counts.index') }}" title="Cycle count"><x-icon name="clipboard-outline" /><span>Cycle count</span></a>
             <button type="button" class="pos-sidebar-link" data-pos-module-link="dashboard" title="Dashboard" aria-label="Dashboard"><x-icon name="home-outline" /><span>Dashboard</span></button>
             <button type="button" class="pos-sidebar-link" data-pos-module-link="ringkasan" title="Ringkasan" aria-label="Ringkasan"><x-icon name="stats-chart-outline" /><span>Ringkasan</span></button>
             <button type="button" class="pos-sidebar-link" data-pos-module-link="kasir" title="Kasir" aria-label="Kasir"><x-icon name="cash-outline" /><span>Kasir</span></button>
@@ -178,7 +179,7 @@
             <div>
                 <strong>{{ $activeShift ? 'Shift kasir sedang berjalan' : 'Shift kasir belum dibuka' }}</strong>
                 <p class="order-meta" style="margin-top:5px">
-                    {{ $activeShift ? 'Dimulai '.$activeShift->opened_at->locale('id')->translatedFormat('d M Y, H:i').' · Uang awal Rp'.number_format($activeShift->starting_cash, 0, ',', '.') : 'Buka shift untuk menerima transaksi dan pesanan online.' }}
+                    {{ $activeShift ? ($activeShift->shift_number ? 'Shift '.$activeShift->shift_number.' · ' : 'Shift lama tanpa nomor · ').'Dimulai '.$activeShift->opened_at->locale('id')->translatedFormat('d M Y, H:i').' · Uang awal Rp'.number_format($activeShift->starting_cash, 0, ',', '.') : 'Buka shift untuk menerima transaksi dan pesanan online.' }}
                 </p>
             </div>
         </div>
@@ -199,6 +200,15 @@
         @else
             <form class="inline-form" method="POST" action="{{ route('pos.shift.open') }}">
                 @csrf
+                <div>
+                    <label class="field-label" for="shift-number">Shift kerja</label>
+                    <select class="field" id="shift-number" name="shift_number" required>
+                        <option value="">Pilih shift</option>
+                        @foreach ([1, 2] as $shiftNumber)
+                            <option value="{{ $shiftNumber }}" @selected(old('shift_number') == $shiftNumber)>Shift {{ $shiftNumber }}@if (filled($storeSettings['shift_'.$shiftNumber.'_start'] ?? null)) ({{ $storeSettings['shift_'.$shiftNumber.'_start'] }}–{{ $storeSettings['shift_'.$shiftNumber.'_end'] }})@endif</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div>
                     <label class="field-label" for="starting_cash">Uang kas awal</label>
                     <input class="field" id="starting_cash" name="starting_cash" type="number" min="0" max="999999999999" step="1" value="{{ old('starting_cash', 0) }}" required>

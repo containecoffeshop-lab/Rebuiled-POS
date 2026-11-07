@@ -16,6 +16,23 @@ use Illuminate\View\View;
 
 class StoreSettingsController extends Controller
 {
+    public function updateShiftTimes(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'shift_1_start' => ['nullable', 'date_format:H:i', 'required_with:shift_1_end'],
+            'shift_1_end' => ['nullable', 'date_format:H:i', 'required_with:shift_1_start'],
+            'shift_2_start' => ['nullable', 'date_format:H:i', 'required_with:shift_2_end'],
+            'shift_2_end' => ['nullable', 'date_format:H:i', 'required_with:shift_2_start'],
+        ]);
+        DB::transaction(function () use ($data): void {
+            foreach (['shift_1_start', 'shift_1_end', 'shift_2_start', 'shift_2_end'] as $key) {
+                StoreSetting::query()->updateOrCreate(['key' => $key], ['value' => $data[$key] ?? '']);
+            }
+        });
+
+        return back()->with('success', 'Jadwal shift berhasil disimpan.');
+    }
+
     public function updateNotifications(Request $request): RedirectResponse
     {
         $data = $request->validate([

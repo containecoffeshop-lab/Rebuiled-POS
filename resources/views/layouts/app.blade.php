@@ -24,6 +24,7 @@
                     <div class="notification-center" data-notifications
                         data-user-id="{{ auth()->id() }}"
                         data-feed-url="{{ route('pos.notifications.index') }}"
+                        data-stock-url="{{ route('pos.notifications.stock') }}"
                         data-read-all-url="{{ route('pos.notifications.read-all') }}">
                         <button class="button button-secondary notification-toggle" type="button" data-notification-toggle aria-expanded="false" aria-controls="notification-panel" aria-label="Notifikasi">
                             <x-icon name="notifications-outline" />

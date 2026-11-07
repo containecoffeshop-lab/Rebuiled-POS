@@ -606,6 +606,7 @@ class PosController extends Controller
     {
         $data = $request->validate([
             'starting_cash' => ['required', 'integer', 'min:0', 'max:999999999999'],
+            'shift_number' => ['required', 'integer', 'in:1,2'],
         ]);
 
         DB::transaction(function () use ($request, $data, $notifications): void {
@@ -621,12 +622,13 @@ class PosController extends Controller
 
             CashierShift::create([
                 'user_id' => $request->user()->id,
+                'shift_number' => $data['shift_number'],
                 'starting_cash' => $data['starting_cash'],
                 'opened_at' => now(),
             ]);
             $notifications->notifyStaff(
                 'Shift kasir dibuka',
-                'Shift '.$request->user()->name.' dibuka; pemesanan online tersedia.',
+                'Shift '.$data['shift_number'].' '.$request->user()->name.' dibuka; pemesanan online tersedia.',
                 route('pos.index', ['module' => 'kasir']),
                 'shifts',
             );

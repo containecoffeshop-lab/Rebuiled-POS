@@ -984,6 +984,7 @@ if (notificationCenter) {
         if (loading) return;
         loading = true;
         try {
+            await request(notificationCenter.dataset.stockUrl, 'POST');
             const data = await request(notificationCenter.dataset.feedUrl);
             if (!Array.isArray(data.notifications)) throw new Error('Daftar notifikasi tidak valid.');
             const ids = data.notifications.map((notification) => notification.id);

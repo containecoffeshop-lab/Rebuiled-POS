@@ -14,6 +14,7 @@ class PosNotificationService
         'sales' => 'Transaksi dan pembayaran',
         'kitchen' => 'Pesanan siap disajikan',
         'shifts' => 'Buka dan tutup shift',
+        'stock' => 'Stok bahan di bawah minimum',
     ];
 
     public const ROLES = ['manager' => 'Pengelola', 'cashier' => 'Kasir'];
@@ -32,7 +33,7 @@ class PosNotificationService
         $recipients = User::query()->where('is_active', true)->get()->filter(function (User $user) use ($settings, $category): bool {
             $setting = $settings->get('notification_categories_'.$user->role);
             if ($setting === null) {
-                return true;
+                return $category !== 'stock' || $user->role === 'manager';
             }
 
             $categories = json_decode($setting, true, flags: JSON_THROW_ON_ERROR);
