@@ -364,6 +364,7 @@ class PosController extends Controller
 
     public function resetSummary(Request $request): RedirectResponse
     {
+        abort_unless($request->user()->role === 'manager', 403);
         $request->validate(['confirmation' => ['required', 'in:RESET']]);
         SummaryPeriod::reset();
 
