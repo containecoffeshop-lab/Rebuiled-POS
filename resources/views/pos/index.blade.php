@@ -3,7 +3,9 @@
 @section('title', 'Kasir')
 
 @section('content')
-@php($canModule = fn ($module) => \App\Services\ModuleAccess::allows(auth()->user(), $module))
+@php
+    $canModule = fn ($module) => \App\Services\ModuleAccess::allows(auth()->user(), $module);
+@endphp
 <div class="dashboard-head">
     <div>
         <p class="eyebrow" style="color:#65806c;margin-bottom:5px">Ruang kerja</p>
