@@ -104,7 +104,7 @@ class PosController extends Controller
             ->paginate(12);
 
         $summary = [
-            'sales_today' => Transaction::query()->where('transaction_kind', 'sale')->whereDate('created_at', $today)->where('status', 'paid')->when($period->start(), fn ($q) => $period->timestamp($q, 'created_at'))->sum('grand_total'),
+            'sales_today' => Transaction::query()->where('transaction_kind', 'sale')->whereDate($period->start() ? 'paid_at' : 'created_at', $today)->where('status', 'paid')->when($period->start(), fn ($q) => $period->timestamp($q, 'paid_at'))->sum('grand_total'),
             'orders_today' => Transaction::query()->where('transaction_kind', 'sale')->whereDate('created_at', $today)->where('status', '!=', 'cancelled')->when($period->start(), fn ($q) => $period->timestamp($q, 'created_at'))->count(),
             'awaiting_payment' => Transaction::query()->where('status', 'pending')->count(),
             'in_kitchen' => Transaction::query()->whereIn('kitchen_status', ['pending', 'onprogress'])->where('status', '!=', 'cancelled')->count(),
@@ -120,7 +120,7 @@ class PosController extends Controller
             ->where('transactions.transaction_kind', 'sale')
             ->where('transactions.status', 'paid')
             ->where('stock_movements.type', 'out')
-            ->when($period->start(), fn ($q) => $period->timestamp($q, 'stock_movements.created_at'))
+            ->when($period->start(), fn ($q) => $period->timestamp($q, 'transactions.paid_at'))
             ->whereDate('stock_movements.created_at', '>=', $monthStart)
             ->whereDate('stock_movements.created_at', '<=', $monthEnd);
         $ingredientCostIncomplete = (clone $ingredientMovementQuery)->whereNull('stock_movements.cost_amount')->exists();
@@ -491,7 +491,7 @@ class PosController extends Controller
             ->where('transactions.transaction_kind', 'sale')
             ->where('transactions.status', 'paid')
             ->where('stock_movements.type', 'out')
-            ->when($period->start(), fn ($q) => $period->timestamp($q, 'stock_movements.created_at'))
+            ->when($period->start(), fn ($q) => $period->timestamp($q, 'transactions.paid_at'))
             ->whereBetween('stock_movements.created_at', [$monthStart, $monthEnd]);
         $ingredientCostIncomplete = (clone $ingredientQuery)->whereNull('stock_movements.cost_amount')->exists();
         $ingredientCost = $ingredientCostIncomplete ? null : (int) (clone $ingredientQuery)->sum('stock_movements.cost_amount');

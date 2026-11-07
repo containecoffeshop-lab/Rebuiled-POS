@@ -45,7 +45,7 @@
 </section>
 
 <section class="panel">
-    <form class="pos-order-form" method="POST" action="{{ route('pos.settings.update') }}" enctype="multipart/form-data" style="max-width:680px">
+    <form class="pos-order-form" method="POST" action="{{ route('pos.settings.update') }}" enctype="multipart/form-data" style="max-width:680px" data-feature-label="identitas dan tampilan toko">
         @csrf @method('PUT')
         <div class="field-group">
             <label class="field-label" for="store-name">Nama toko</label>

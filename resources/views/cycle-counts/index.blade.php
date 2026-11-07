@@ -55,6 +55,8 @@
         <article class="order-card">
             <h3>Tugas #{{ $task->id }} · {{ $task->task_date->format('d/m/Y') }} · Shift {{ $task->shift_number }}</h3>
             <p>{{ ['pending' => 'Menunggu hitungan', 'review' => 'Menunggu persetujuan', 'approved' => 'Disetujui'][$task->status] ?? $task->status }} · Dibuat {{ $task->creator->name }} @if($task->counter) · Dihitung {{ $task->counter->name }} pada {{ $task->counted_at->format('d/m/Y H:i') }} @endif @if($task->approver) · Disetujui {{ $task->approver->name }} @endif</p>
+            <details class="order-card-details" @if ($errors->any()) open @endif>
+            <summary class="button button-secondary button-small">Detail dan tindakan tugas</summary>
             @if ($task->note)<p>{{ $task->note }}</p>@endif
             @if ($task->status === 'pending' && $shift && $shift->shift_number === $task->shift_number)
                 <form method="POST" action="{{ route('pos.cycle-counts.count', $task) }}" class="pos-order-form">
@@ -83,6 +85,7 @@
                     <form method="POST" action="{{ route('pos.cycle-counts.recount', $task) }}">@csrf <button class="button button-secondary" type="submit">Kembalikan untuk hitung ulang</button></form>
                 @endif
             @endif
+            </details>
         </article>
     @empty
         <p>Tidak ada tugas yang tersedia.</p>

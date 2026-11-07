@@ -75,14 +75,14 @@ defineCustomElement();
 document.querySelectorAll('body[data-staff-workspace] main form').forEach((form) => {
     if (form.method.toLowerCase() !== 'post'
         || form.closest('details, dialog, table, .shift-panel, [data-pos-module="kasir"], .order-card, .summary-reset')
-        || form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]), select, textarea').length < 1) return;
+        || (!form.querySelector('input:not([type="hidden"]):not([type="submit"]), select, textarea, [data-add-account], [data-add-charge]'))) return;
 
     const section = form.closest('section, article');
-    const heading = form.querySelector('h2, h3, legend') || section?.querySelector('h2, h3');
-    const label = heading?.textContent.trim() || 'Formulir';
+    const heading = section?.querySelector(':scope > h2, :scope > .panel-head h2') || form.querySelector('h2, h3');
+    const label = form.dataset.featureLabel || heading?.textContent.trim() || 'Formulir';
     const details = document.createElement('details');
     details.className = 'feature-disclosure';
-    const target = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    const target = location.hash ? document.getElementById(location.hash.slice(1)) : null;
     details.open = Boolean(document.querySelector('.alert-error')) || Boolean(target && (target.contains(form) || form.contains(target)));
     const summary = document.createElement('summary');
     summary.className = 'button button-secondary';
@@ -1082,7 +1082,7 @@ if (notificationCenter) {
     window.setInterval(refresh, 20000);
 }
 
-document.querySelectorAll('details').forEach((details, index, detailsList) => {
+document.querySelectorAll('details:not(.feature-disclosure):not(.order-card-details):not(.summary-reset)').forEach((details, index, detailsList) => {
     const summary = details.querySelector(':scope > summary');
     if (!summary) return;
 

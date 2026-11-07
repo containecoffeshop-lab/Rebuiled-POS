@@ -8,6 +8,7 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\ExpenseSubcategory;
 use App\Models\Menu;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -54,6 +55,9 @@ class SummaryResetTest extends TestCase
         $this->get(route('pos.summary.pdf'))->assertOk()->assertDontSee('OLD')->assertSee('Tidak ada transaksi lunas pada periode ini.');
 
         Carbon::setTestNow('2026-11-07 10:00:02');
+        $pending = Transaction::query()->where('status', 'pending')->firstOrFail();
+        $this->patch(route('pos.orders.paid', $pending), ['payment_method' => 'cash', 'amount_paid' => 22000])
+            ->assertSessionHasNoErrors();
         $this->post(route('pos.orders.store'), [
             'transaction_type' => 'takeaway', 'payment_method' => 'cash', 'amount_paid' => 22000,
             'items' => [['menu_id' => $menu->id, 'quantity' => 1]],
@@ -71,11 +75,16 @@ class SummaryResetTest extends TestCase
         DB::table('expense_payments')->insert(['expense_id' => $newExpense->id, 'paid_at' => today(), 'amount' => 4000, 'payment_method' => 'cash', 'created_at' => now(), 'updated_at' => now()]);
 
         $this->get(route('pos.index', ['module' => 'ringkasan']))
-            ->assertViewHas('monthlySummary', fn ($summary) => (int) $summary['income'] === 22000 && (int) $summary['expenses'] === 4000 && $summary['operational_cost'] === 4000);
+            ->assertViewHas('summary', fn ($summary) => (int) $summary['sales_today'] === 44000 && $summary['awaiting_payment'] === 0)
+            ->assertViewHas('monthlySummary', fn ($summary) => (int) $summary['income'] === 44000 && (int) $summary['expenses'] === 4000 && $summary['operational_cost'] === 4000);
         $this->get(route('pos.summary.pdf'))->assertOk()->assertSee('NEW')->assertDontSee('OLD')->assertDontSee('BACKDATED');
         $this->assertDatabaseHas('expenses', ['id' => $backdated->id]);
         $this->assertDatabaseCount('transactions', 3);
         $this->assertDatabaseHas('audit_events', ['route_name' => 'pos.summary.reset']);
+        $this->post(route('pos.summary.reset'), ['confirmation' => 'RESET'])->assertSessionHasNoErrors();
+        $this->get(route('pos.index', ['module' => 'ringkasan']))
+            ->assertViewHas('monthlySummary', fn ($summary) => (int) $summary['income'] === 0 && (int) $summary['expenses'] === 0);
+        $this->assertDatabaseCount('transactions', 3);
 
         Carbon::setTestNow();
     }
