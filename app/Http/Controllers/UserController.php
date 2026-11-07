@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\CashierShift;
 use App\Services\ModuleAccess;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -40,7 +41,9 @@ class UserController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('users.index', compact('users', 'filters'));
+        $openShifts = CashierShift::query()->with('user')->whereNull('closed_at')->orderBy('opened_at')->get();
+
+        return view('users.index', compact('users', 'filters', 'openShifts'));
     }
 
     public function store(Request $request): RedirectResponse

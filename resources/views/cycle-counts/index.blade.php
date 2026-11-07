@@ -15,6 +15,17 @@
         <button class="button" type="submit">Buka shift</button>
     </form>
 </section>
+@elseif (! \App\Services\ModuleAccess::allows(auth()->user(), 'kasir'))
+<section class="panel">
+    <h2>Shift {{ $shift->shift_number ?? 'lama tanpa nomor' }} sedang berjalan</h2>
+    <p>Kas diharapkan Rp{{ number_format($expectedCash, 0, ',', '.') }}; retur dan pengeluaran di luar shift tidak dihitung.</p>
+    <form method="POST" action="{{ route('pos.shift.close') }}" class="inline-form">
+        @csrf
+        <label>Uang kas akhir <input class="field" type="number" min="0" max="999999999999" name="ending_cash" required></label>
+        <label>Alasan selisih jika ada <input class="field" name="closing_note" maxlength="1000"></label>
+        <button class="button button-danger" type="submit">Tutup shift</button>
+    </form>
+</section>
 @endif
 @if (auth()->user()->role === 'manager')
 <section class="panel">

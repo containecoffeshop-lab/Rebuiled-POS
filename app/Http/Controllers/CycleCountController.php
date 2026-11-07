@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CashierShift;
 use App\Models\CycleCountTask;
 use App\Models\Material;
+use App\Models\Transaction;
 use App\Services\RecipeInventory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,8 +22,9 @@ class CycleCountController extends Controller
             ->when($request->user()->role !== 'manager', fn ($query) => $query->where('status', 'pending')->where('shift_number', $shift?->shift_number))
             ->latest('id')->paginate(15);
         $materials = $request->user()->role === 'manager' ? Material::query()->with('unit')->orderBy('name')->get() : collect();
+        $expectedCash = $shift ? $shift->starting_cash + (int) Transaction::query()->where('cashier_shift_id', $shift->id)->where('status', 'paid')->where('payment_method', 'cash')->sum('grand_total') : null;
 
-        return view('cycle-counts.index', compact('tasks', 'materials', 'shift'));
+        return view('cycle-counts.index', compact('tasks', 'materials', 'shift', 'expectedCash'));
     }
 
     public function store(Request $request): RedirectResponse

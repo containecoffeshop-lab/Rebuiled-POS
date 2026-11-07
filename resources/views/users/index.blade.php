@@ -15,6 +15,15 @@
 </div>
 
 <section class="panel">
+    <h2>Shift yang sedang berjalan</h2>
+    @forelse ($openShifts as $shift)
+        <p>{{ $shift->user->name }} · {{ $shift->shift_number ? 'Shift '.$shift->shift_number : 'Shift lama tanpa nomor' }} · Dibuka {{ $shift->opened_at->format('d/m/Y H:i') }}</p>
+    @empty
+        <p>Belum ada shift terbuka.</p>
+    @endforelse
+</section>
+
+<section class="panel">
     <div class="panel-head">
         <div><h2>Tambah pengguna</h2><p>Gunakan kata sandi minimal 10 karakter dan bagikan secara aman.</p></div>
     </div>

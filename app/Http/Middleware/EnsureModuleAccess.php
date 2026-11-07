@@ -19,6 +19,9 @@ class EnsureModuleAccess
                 || (str_starts_with($route, 'pos.shift.') && ModuleAccess::allows($user, 'cycle_count'))
                 || ($route === 'pos.orders.receipt' && ModuleAccess::allows($user, 'kasir'));
             abort_unless($allowed, 403);
+        } elseif ($request->user()->role !== 'manager') {
+            $route = (string) $request->route()?->getName();
+            abort_unless($route === 'pos.index' || str_starts_with($route, 'pos.notifications.'), 403);
         }
 
         return $next($request);
