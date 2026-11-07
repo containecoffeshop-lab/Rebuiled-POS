@@ -55,6 +55,39 @@ class OrderFlowTest extends TestCase
         $this->actingAs($user)->getJson(route('pos.orders.pending-count'))->assertOk()->assertJson(['count' => 1]);
     }
 
+    public function test_all_active_kitchen_orders_are_completed_without_changing_payment(): void
+    {
+        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $menu = $this->menu(22000);
+        $user = $this->openShift();
+        for ($i = 0; $i < 13; $i++) {
+            $this->post(route('orders.store'), [
+                'customer_name' => 'Pelanggan '.$i,
+                'customer_phone' => '08123456789',
+                'transaction_type' => 'takeaway',
+                'items' => [['menu_id' => $menu->id, 'quantity' => 1]],
+            ])->assertRedirect();
+        }
+        $orders = Transaction::query()->orderBy('id')->get();
+        $orders[0]->update(['kitchen_status' => 'onprogress']);
+        $orders[1]->update(['status' => 'cancelled', 'kitchen_status' => 'cancelled']);
+        $orders[2]->update(['kitchen_status' => 'success']);
+        $orders[3]->update(['status' => 'paid', 'paid_at' => now()]);
+
+        $this->actingAs($user)->patch(route('pos.orders.kitchen.complete-all'))
+            ->assertRedirect(route('pos.index', ['module' => 'pesanan']))
+            ->assertSessionHas('success', '11 pesanan dapur ditandai selesai. Status pembayaran tidak berubah.');
+
+        $this->assertSame(11, Transaction::query()->where('status', 'pending')->where('kitchen_status', 'success')->count());
+        $this->assertSame('paid', $orders[3]->fresh()->status);
+        $this->assertSame('success', $orders[3]->fresh()->kitchen_status);
+        $this->assertSame('cancelled', $orders[1]->fresh()->kitchen_status);
+        $this->assertSame(1, $user->notifications()->where('data', 'like', '%11 pesanan%')->count());
+
+        $this->patch(route('pos.orders.kitchen.complete-all'))->assertSessionHas('success', '0 pesanan dapur ditandai selesai. Status pembayaran tidak berubah.');
+        $this->assertSame(1, $user->notifications()->where('data', 'like', '%11 pesanan%')->count());
+    }
+
     public function test_public_menu_allows_adding_items_before_login_and_hides_cart_in_a_dialog(): void
     {
         $this->menu(22000);
@@ -86,15 +119,27 @@ class OrderFlowTest extends TestCase
 
     public function test_dashboard_navigation_has_no_duplicate_module_grid_and_points_to_summary(): void
     {
-        $cashier = User::factory()->create(['role' => 'cashier']);
+        $manager = User::factory()->create(['role' => 'manager']);
 
-        $this->actingAs($cashier)->get(route('pos.index', ['module' => 'kasir']))
+        $this->actingAs($manager)->get(route('pos.index', ['module' => 'kasir']))
             ->assertOk()
-            ->assertSee('data-pos-module-link="dashboard"', false)
+            ->assertDontSee('data-pos-module-link="dashboard"', false)
             ->assertSee('data-dashboard-toggle', false)
             ->assertSee('data-pos-module="ringkasan"', false)
+            ->assertSeeInOrder(['<span>Ringkasan</span>', '<span>Audit stok</span>', '<span>Cycle count</span>'], false)
             ->assertDontSee('Dashboard modul')
             ->assertDontSee('data-module-dashboard', false);
+    }
+
+    public function test_customer_cart_remains_available_when_no_menu_matches(): void
+    {
+        $this->menu(22000);
+
+        $this->get(route('home', ['q' => 'tidak-ada-menu-yang-cocok']))
+            ->assertOk()
+            ->assertSee('Belum ada menu atau produk yang cocok')
+            ->assertSee('data-open-cart', false)
+            ->assertSee('data-cart-dialog', false);
     }
 
     public function test_customer_and_pos_catalogs_search_menu_names_and_filter_by_category(): void
@@ -1236,7 +1281,9 @@ class OrderFlowTest extends TestCase
             ->assertOk()
             ->assertSee('Buka kasir')
             ->assertSee('Buka shift')
-            ->assertSee('Buat transaksi')
+            ->assertDontSee('Buat transaksi')
+            ->assertDontSee('data-cart-storage-key="pos-menu-cart"', false)
+            ->assertDontSee('Proses transaksi')
             ->assertSee('Ringkasan');
 
         $this->post(route('pos.shift.open'), ['starting_cash' => 50000, 'shift_number' => 1])
@@ -1245,6 +1292,11 @@ class OrderFlowTest extends TestCase
         $this->assertDatabaseHas('cashier_shifts', ['user_id' => $cashier->id, 'starting_cash' => 50000, 'closed_at' => null]);
 
         $menu = $this->menu(5000);
+        $this->get(route('pos.index'))->assertOk()
+            ->assertSee('Buat transaksi')
+            ->assertSee('data-cart-storage-key="pos-menu-cart"', false)
+            ->assertSee('Proses transaksi')
+            ->assertSee($menu->name);
         $this->post(route('pos.orders.store'), [
             'transaction_type' => 'takeaway',
             'payment_method' => 'cash',

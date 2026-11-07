@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Services\PosNotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ModulePermissionsTest extends TestCase
@@ -23,6 +24,7 @@ class ModulePermissionsTest extends TestCase
         $this->actingAs($cashier)->get(route('pos.settings.index'))->assertForbidden();
         $this->actingAs($cashier)->get(route('pos.users.index'))->assertForbidden();
         $this->actingAs($cashier)->post(route('pos.orders.store'), [])->assertForbidden();
+        $this->actingAs($cashier)->patch(route('pos.orders.kitchen.complete-all'))->assertForbidden();
         $this->actingAs($cashier)->get(route('pos.index'))->assertOk()->assertDontSee('data-pos-module="pesanan"', false)->assertDontSee('data-pos-module="kasir"', false);
         $this->actingAs($manager)->put(route('pos.users.permissions', $cashier), [])->assertSessionHasNoErrors();
         $cashier->refresh();
@@ -48,5 +50,18 @@ class ModulePermissionsTest extends TestCase
         $this->actingAs($manager)->put(route('pos.users.permissions', $cashier), [])->assertSessionHasNoErrors();
         $cashier->refresh();
         $this->actingAs($cashier)->getJson(route('pos.notifications.index'))->assertJsonPath('unread_count', 0)->assertJsonCount(0, 'notifications');
+    }
+
+    public function test_legacy_notifications_follow_current_permissions(): void
+    {
+        $cashier = User::factory()->create(['role' => 'cashier', 'module_permissions' => ['pesanan']]);
+        $cashier->notifications()->create([
+            'id' => (string) Str::uuid(),
+            'type' => 'legacy',
+            'data' => ['title' => 'Pesanan online masuk', 'message' => 'Pesanan lama', 'url' => '/kasir'],
+        ]);
+        $this->actingAs($cashier)->getJson(route('pos.notifications.index'))->assertJsonPath('unread_count', 1);
+        $cashier->update(['module_permissions' => []]);
+        $this->actingAs($cashier)->getJson(route('pos.notifications.index'))->assertJsonPath('unread_count', 0);
     }
 }

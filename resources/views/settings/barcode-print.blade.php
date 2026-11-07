@@ -12,7 +12,7 @@
     <style>
         @page { size: {{ $template->paper_width_mm }}mm {{ $template->paper_height_mm }}mm; margin: 0; }
         .label-page { width: {{ $template->paper_width_mm }}mm; height: {{ $template->paper_height_mm }}mm; box-sizing: border-box; padding: {{ $template->margin_top_mm }}mm {{ $template->margin_left_mm }}mm; display: grid; grid-template-columns: repeat({{ $template->columns }}, {{ $template->label_width_mm }}mm); grid-template-rows: repeat({{ $template->rows }}, {{ $template->label_height_mm }}mm); column-gap: {{ $template->gap_horizontal_mm }}mm; row-gap: {{ $template->gap_vertical_mm }}mm; page-break-after: always; overflow: hidden; }
-        .barcode-label { width: {{ $template->label_width_mm }}mm; height: {{ $template->label_height_mm }}mm; box-sizing: border-box; border: 1px dashed #cbd4ca; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; padding:1mm; color:#111; font-family:Arial,sans-serif; text-align:center; }
+        .barcode-label { width: {{ $template->label_width_mm }}mm; height: {{ $template->label_height_mm }}mm; box-sizing: border-box; border: 1px dashed #cbd4ca; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; padding:1mm; color:#111; font-family:var(--font-sans); text-align:center; }
         .barcode-label-name { max-width:100%; overflow:hidden; white-space:nowrap; font-size:9pt; font-weight:600; }
         .barcode-label-price { font-size:9pt; }
         .barcode-label svg { max-width:100%; max-height:16mm; }
@@ -23,7 +23,7 @@
     <style>
         @page { size: {{ $template->paper_width_mm }}mm {{ $template->label_height_mm + 2 * $template->margin_top_mm }}mm; margin: 0; }
         .label-page { width: {{ $template->paper_width_mm }}mm; height: {{ $template->label_height_mm + 2 * $template->margin_top_mm }}mm; box-sizing: border-box; padding: {{ $template->margin_top_mm }}mm {{ $template->margin_left_mm }}mm; display:flex; justify-content:center; page-break-after:always; overflow:hidden; }
-        .barcode-label { width: {{ $template->label_width_mm }}mm; height: {{ $template->label_height_mm }}mm; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; padding:1mm; color:#111; font-family:Arial,sans-serif; text-align:center; }
+        .barcode-label { width: {{ $template->label_width_mm }}mm; height: {{ $template->label_height_mm }}mm; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; padding:1mm; color:#111; font-family:var(--font-sans); text-align:center; }
         .barcode-label-name { max-width:100%; overflow:hidden; white-space:nowrap; font-size:9pt; font-weight:600; }
         .barcode-label-price { font-size:9pt; }
         .barcode-label svg { max-width:100%; max-height:16mm; }

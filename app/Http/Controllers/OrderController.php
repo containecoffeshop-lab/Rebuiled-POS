@@ -274,6 +274,38 @@ class OrderController extends Controller
             ->with('print_receipt', true);
     }
 
+    public function completeAllKitchen(PosNotificationService $notifications): RedirectResponse
+    {
+        $count = DB::transaction(function () use ($notifications): int {
+            $orders = Transaction::query()
+                ->where('transaction_kind', 'sale')
+                ->whereIn('status', ['pending', 'paid'])
+                ->whereIn('kitchen_status', ['pending', 'onprogress'])
+                ->whereHas('details', fn ($query) => $query->whereNotNull('menu_id'))
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($orders as $order) {
+                $order->update(['kitchen_status' => 'success']);
+            }
+
+            if ($orders->isNotEmpty()) {
+                $notifications->notifyStaff(
+                    'Pesanan siap disajikan',
+                    $orders->count().' pesanan selesai diproses dapur.',
+                    route('pos.index', ['module' => 'pesanan']),
+                    'kitchen',
+                );
+            }
+
+            return $orders->count();
+        }, attempts: 3);
+
+        return redirect()->route('pos.index', ['module' => 'pesanan'])
+            ->with('success', $count.' pesanan dapur ditandai selesai. Status pembayaran tidak berubah.');
+    }
+
     public function updateKitchen(Request $request, Transaction $transaction, PosNotificationService $notifications): RedirectResponse
     {
         $data = $request->validate(['kitchen_status' => ['required', 'in:onprogress,success']]);

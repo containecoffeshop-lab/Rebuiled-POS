@@ -92,6 +92,22 @@ class PosNotificationController extends Controller
             $categories[] = 'stock';
         }
 
-        return $query->whereIn('data->category', $categories);
+        $legacyTitles = [];
+        $titlesByCategory = [
+            'orders' => ['Pesanan online masuk', 'Pesanan dibatalkan'],
+            'sales' => ['Transaksi selesai', 'Pembayaran selesai'],
+            'kitchen' => ['Pesanan siap disajikan'],
+            'shifts' => ['Shift kasir dibuka', 'Shift kasir ditutup'],
+        ];
+        foreach ($categories as $category) {
+            $legacyTitles = array_merge($legacyTitles, $titlesByCategory[$category] ?? []);
+        }
+
+        return $query->where(function ($builder) use ($categories, $legacyTitles): void {
+            $builder->whereIn('data->category', $categories)
+                ->orWhere(function ($legacy) use ($legacyTitles): void {
+                    $legacy->whereNull('data->category')->whereIn('data->title', $legacyTitles);
+                });
+        });
     }
 }

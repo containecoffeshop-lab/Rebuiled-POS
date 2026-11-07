@@ -88,6 +88,7 @@
                 <input class="field color-field" id="brand-background" name="brand_background" type="color" value="{{ old('brand_background', $settings['brand_background'] ?? '#faf8f5') }}" data-theme-color="background">
             </div>
         </div>
+        <p class="cart-hint">Warna disesuaikan untuk menjaga keterbacaan; mode gelap mengikuti perangkat.</p>
         <div class="theme-preview" data-theme-preview>
             <span class="theme-preview-label">Pratinjau warna</span>
             <strong>{{ old('name', $settings['name'] ?? 'Nama toko') }}</strong>

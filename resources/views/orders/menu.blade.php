@@ -12,7 +12,7 @@
     <h1>{{ filled($storeSettings['hero_title'] ?? null) ? $storeSettings['hero_title'] : 'Temukan rasa yang pas untuk hari ini.' }}</h1>
     <p>{{ filled($storeSettings['hero_description'] ?? null) ? $storeSettings['hero_description'] : 'Pilih menu favoritmu, sampaikan catatan, lalu pesanan langsung masuk ke meja kasir.' }}</p>
     <span class="hero-note"><x-icon name="sparkles-outline" /> Dibuat segar setelah dipesan <span>·</span> Bayar di kasir</span>
-</section>
+                </section>
 
 <div class="section-heading">
     <div><h2>Menu pilihan</h2><p>Rincian harga akhir ditampilkan sebelum pesanan dikirim.</p></div>
@@ -34,17 +34,17 @@
     </form>
 </div>
 
-@if ($menus->isEmpty() && $productVariants->isEmpty())
-    <div class="empty-state">Belum ada menu atau produk yang cocok. Coba kategori lain atau hubungi kasir.</div>
-@else
     <div class="catalog-layout" data-cart-root data-cart-storage-key="customer-menu-cart" data-coupon-url="{{ route('coupons.quote') }}" data-initial-cart="{{ json_encode($initialCart, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}">
         @unless ($orderingAvailable)
-            <p class="status-tag pending cart-open-button">Kasir belum membuka shift. Menu tetap dapat ditambahkan ke keranjang, tetapi pesanan belum dapat dikirim.</p>
+            <p class="status-tag pending">Kasir belum membuka shift. Menu tetap dapat ditambahkan ke keranjang, tetapi pesanan belum dapat dikirim.</p>
         @endunless
-        <button class="button button-secondary cart-open-button" type="button" data-open-cart aria-controls="customer-cart">
+        <button class="button cart-open-button" type="button" data-open-cart aria-controls="customer-cart" aria-haspopup="dialog">
             <x-icon name="cart-outline" />
             Keranjang (<span data-cart-count>0</span>)
         </button>
+        @if ($menus->isEmpty() && $productVariants->isEmpty())
+            <div class="empty-state">Belum ada menu atau produk yang cocok. Coba kategori lain atau hubungi kasir.</div>
+        @else
         <section>
             @foreach ($menus->groupBy('category_id') as $categoryId => $categoryMenus)
                 @php $menuCategory = $categories->firstWhere('id', (int) $categoryId); @endphp
@@ -82,7 +82,7 @@
                     </article>
                 @endforeach
                     </div>
-                </section>
+                        </section>
             @endforeach
             @if ($productVariants->isNotEmpty())
                 <div class="section-heading" style="margin-top:30px"><div><h2>Produk eceran</h2><p>Produk memiliki varian dan stok terpisah dari bahan menu.</p></div></div>
@@ -112,6 +112,7 @@
                 @endforeach
             @endif
         </section>
+        @endif
 
         <dialog class="details-dialog menu-variant-dialog" data-menu-variant-dialog aria-labelledby="customer-variant-title">
             <div class="details-dialog-head">
@@ -191,5 +192,4 @@
             </div>
         </dialog>
     </div>
-@endif
 @endsection

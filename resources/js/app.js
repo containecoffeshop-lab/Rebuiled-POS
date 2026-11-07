@@ -19,6 +19,7 @@ import {
     fastFoodOutline,
     homeOutline,
     layersOutline,
+    notificationsOutline,
     peopleOutline,
     openOutline,
     personOutline,
@@ -52,6 +53,7 @@ addIcons({
     fastFoodOutline,
     homeOutline,
     layersOutline,
+    notificationsOutline,
     peopleOutline,
     openOutline,
     personOutline,
@@ -797,7 +799,7 @@ document.querySelectorAll('[data-pos-workspace]').forEach((workspace) => {
         if (label) label.textContent = collapsed ? 'Maksimalkan' : 'Minimalkan';
     });
 
-    selectModule(defaultModule);
+    if (modules.length) selectModule(defaultModule);
 
     const badge = workspace.querySelector('[data-pending-order-badge]');
     const updatePendingOrderBadge = async () => {

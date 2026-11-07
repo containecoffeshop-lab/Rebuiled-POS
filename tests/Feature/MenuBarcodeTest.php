@@ -29,6 +29,8 @@ class MenuBarcodeTest extends TestCase
 
         $menu = Menu::query()->where('name', 'Kopi susu')->firstOrFail();
         $this->assertSame('KOPI-001', $menu->barcode);
+        $this->post(route('pos.shift.open'), ['starting_cash' => 0, 'shift_number' => 1])
+            ->assertSessionHasNoErrors();
         $this->get(route('pos.index'))
             ->assertOk()
             ->assertSee('data-menu-barcode="KOPI-001"', false)

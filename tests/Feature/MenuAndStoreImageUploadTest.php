@@ -75,6 +75,8 @@ class MenuAndStoreImageUploadTest extends TestCase
         $this->get(route('home'))->assertOk()
             ->assertSee('Selamat datang')
             ->assertSee('--brand-primary: #123456', false)
+            ->assertSee('--brand-accent: #abcdef', false)
+            ->assertSee('--brand-background: #fafafa', false)
             ->assertSee(asset($logoPath), false);
 
         $this->put(route('pos.settings.update'), [

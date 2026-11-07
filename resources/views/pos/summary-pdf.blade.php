@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ringkasan {{ $month_label }} · POS</title>
     <style>
-        :root { font-family: Arial, sans-serif; color: #23332a; font-size: 11px; }
+        :root { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; color: #23332a; font-size: 11px; }
         body { margin: 24px auto; max-width: 1100px; padding: 0 20px; }
         h1 { margin: 0; color: #355e49; font-size: 24px; }
         h2 { margin: 24px 0 8px; color: #355e49; font-size: 15px; }

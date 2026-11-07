@@ -18,13 +18,12 @@
     <aside class="pos-sidebar" aria-label="Navigasi modul">
         <button class="button button-secondary pos-sidebar-toggle" type="button" data-sidebar-toggle aria-expanded="true" aria-label="Minimalkan navigasi"><x-icon name="chevron-back-outline" /><x-icon name="chevron-forward-outline" /><span data-sidebar-toggle-label>Minimalkan</span></button>
         <nav class="pos-sidebar-nav">
-            @if ($canModule('cycle_count'))<a class="pos-sidebar-link" href="{{ route('pos.cycle-counts.index') }}"><x-icon name="clipboard-outline" /><span>Cycle count</span></a>@endif
-            @if ($canModule('ringkasan'))<button type="button" class="pos-sidebar-link" data-pos-module-link="dashboard" title="Dashboard" aria-label="Dashboard"><x-icon name="home-outline" /><span>Dashboard</span></button>@endif
             @foreach (['ringkasan' => ['Ringkasan', 'stats-chart-outline'], 'kasir' => ['Kasir', 'cash-outline'], 'konsumsi' => ['Konsumsi karyawan', 'cafe-outline'], 'pesanan' => ['Pesanan', 'receipt-outline'], 'menu' => ['Menu & HPP', 'restaurant-outline'], 'stok' => ['Stok bahan', 'cube-outline'], 'meja' => ['Meja & QR', 'qr-code-outline'], 'kupon' => ['Kupon', 'pricetag-outline'], 'pelanggan' => ['Pelanggan', 'people-outline']] as $module => [$label, $icon])
                 @if ($canModule($module))<button type="button" class="pos-sidebar-link" data-pos-module-link="{{ $module }}" title="{{ $label }}" aria-label="{{ $label }}"><x-icon :name="$icon" /><span>{{ $label }}</span></button>@endif
             @endforeach
             @foreach (['retur' => ['pos.returns.index', 'Retur', 'return-up-back-outline'], 'produk' => ['pos.products.index', 'Produk eceran', 'bag-handle-outline'], 'pembelian' => ['pos.purchases.index', 'Pembelian', 'cart-outline'], 'pengeluaran' => ['pos.expenses.index', 'Pengeluaran', 'wallet-outline'], 'laporan' => ['pos.reports.index', 'Laporan', 'bar-chart-outline'], 'promosi' => ['pos.promotions.index', 'Promo menu', 'sparkles-outline'], 'paket' => ['pos.bundles.index', 'Paket menu', 'layers-outline'], 'stock_take' => ['pos.stock-takes.index', 'Stok opname', 'clipboard-outline'], 'stock_audit' => ['pos.stock-audits.index', 'Audit stok', 'clipboard-outline'], 'barcode' => ['pos.barcode-templates.index', 'Cetak barcode', 'barcode-outline'], 'audit' => ['pos.audit.index', 'Audit', 'time-outline']] as $module => [$routeName, $label, $icon])
                 @if ($canModule($module))<a class="pos-sidebar-link" href="{{ route($routeName) }}" title="{{ $label }}"><x-icon :name="$icon" /><span>{{ $label }}</span></a>@endif
+                @if ($module === 'stock_audit' && $canModule('cycle_count'))<a class="pos-sidebar-link" href="{{ route('pos.cycle-counts.index') }}"><x-icon name="clipboard-outline" /><span>Cycle count</span></a>@endif
             @endforeach
             @if (auth()->user()->role === 'manager')
                 <a class="pos-sidebar-link" href="{{ route('pos.settings.index') }}"><x-icon name="settings-outline" /><span>Pengaturan toko</span></a>
@@ -212,11 +211,9 @@
             </form>
         @endif
     </section>
+    @if ($activeShift)
     <div class="panel-head">
         <div><h2>Buat transaksi</h2><p>Pilih menu atau produk eceran, atur jumlah, lalu catat pembayaran.</p></div>
-        @unless ($activeShift)
-            <span class="status-tag pending">Buka shift untuk mulai</span>
-        @endunless
     </div>
     @if ($availableMenus->isEmpty() && $productVariants->isEmpty())
         <div class="empty-state">Belum ada menu atau produk aktif. Tambahkan menu atau produk eceran terlebih dahulu.</div>
@@ -410,6 +407,7 @@
             </dialog>
         </div>
     @endif
+    @endif
 </section>
 
 @endif
@@ -520,6 +518,11 @@
         <div><h2>Pesanan & transaksi</h2><p>Pemesanan pelanggan dan kasir tercatat bersama.</p></div>
         <span class="status-tag">{{ $transactions->total() }} transaksi</span>
     </div>
+    <form method="POST" action="{{ route('pos.orders.kitchen.complete-all') }}" onsubmit="return confirm('Tandai semua pesanan dapur yang masih antre atau sedang dibuat sebagai selesai, termasuk di halaman lain? Pembayaran tidak berubah.')">
+        @csrf @method('PATCH')
+        <button class="button button-secondary" type="submit">Selesaikan semuanya</button>
+        <p class="cart-hint">Berlaku untuk seluruh pesanan dapur aktif, termasuk yang tidak terlihat karena filter. Pembayaran tidak berubah.</p>
+    </form>
     <form method="GET" action="{{ route('pos.index') }}" class="filter-row" style="align-items:end">
         <input type="hidden" name="module" value="pesanan">
         <div style="flex:1 1 190px">
@@ -579,6 +582,8 @@
                         <span class="status-tag {{ $hasKitchenItems ? $transaction->kitchen_status : 'paid' }}">{{ $kitchenLabel }}</span>
                     </div>
                 </div>
+                <details class="order-card-details">
+                    <summary class="button button-secondary button-small">Detail dan tindakan pesanan</summary>
                 <ul class="order-lines">
                     @foreach ($transaction->details as $detail)
                         <li>{{ $detail->quantity }} × {{ $detail->item_name }} — Rp{{ number_format($detail->line_total, 0, ',', '.') }}@if ($detail->promotion_discount > 0) <span class="order-meta">(promo {{ $detail->promotion_name }}: −Rp{{ number_format($detail->promotion_discount, 0, ',', '.') }})</span>@endif</li>
@@ -630,6 +635,7 @@
                         </form>
                     @endif
                 </div>
+                </details>
             </article>
         @endforeach
         @if ($transactions->hasPages())
