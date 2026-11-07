@@ -72,7 +72,7 @@
     <summary class="button button-secondary button-small">Reset periode ringkasan</summary>
     <form method="POST" action="{{ route('pos.summary.reset') }}" onsubmit="return confirm('Mulai periode ringkasan baru? Statistik sebelumnya tidak akan muncul di ringkasan atau ekspornya. Transaksi, stok, dan laporan tetap tersimpan.')">
         @csrf
-        <p class="cart-hint">Statistik dan ekspor ringkasan dihitung ulang mulai saat reset. Data lama tetap ada di modul laporan. Pengeluaran dengan tanggal sebelum periode baru tidak dihitung.</p>
+        <p class="cart-hint">Periode dimulai pada detik berikutnya; transaksi pada detik reset tidak dihitung dalam periode baru. Statistik dan ekspor dimulai ulang, tetapi data lama tetap ada di laporan. Pengeluaran bertanggal sebelum periode baru tidak dihitung.</p>
         <label class="field-label" for="summary-reset-confirmation">Ketik RESET untuk mengonfirmasi</label>
         <input class="field" id="summary-reset-confirmation" name="confirmation" pattern="RESET" required autocomplete="off">
         <button class="button button-danger" type="submit">Mulai periode baru</button>
