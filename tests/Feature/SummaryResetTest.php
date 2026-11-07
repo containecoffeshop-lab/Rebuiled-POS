@@ -54,7 +54,7 @@ class SummaryResetTest extends TestCase
             ->assertViewHas('monthlySummary', fn ($summary) => (int) $summary['income'] === 0 && (int) $summary['expenses'] === 0 && $summary['operational_cost'] === 0);
         $this->get(route('pos.summary.pdf'))->assertOk()->assertDontSee('OLD')->assertSee('Tidak ada transaksi lunas pada periode ini.');
 
-        Carbon::setTestNow('2026-11-07 10:00:02');
+        // Payments and sales recorded in the same second after reset belong to the new period.
         $pending = Transaction::query()->where('status', 'pending')->firstOrFail();
         $this->patch(route('pos.orders.paid', $pending), ['payment_method' => 'cash', 'amount_paid' => 22000])
             ->assertSessionHasNoErrors();
@@ -78,6 +78,10 @@ class SummaryResetTest extends TestCase
             ->assertViewHas('summary', fn ($summary) => (int) $summary['sales_today'] === 44000 && $summary['awaiting_payment'] === 0)
             ->assertViewHas('monthlySummary', fn ($summary) => (int) $summary['income'] === 44000 && (int) $summary['expenses'] === 4000 && $summary['operational_cost'] === 4000);
         $this->get(route('pos.summary.pdf'))->assertOk()->assertSee('NEW')->assertDontSee('OLD')->assertDontSee('BACKDATED');
+        $export = $this->get(route('pos.summary.export'))->assertOk()->streamedContent();
+        $this->assertStringContainsString('NEW', $export);
+        $this->assertStringNotContainsString('OLD', $export);
+        $this->assertStringNotContainsString('BACKDATED', $export);
         $this->assertDatabaseHas('expenses', ['id' => $backdated->id]);
         $this->assertDatabaseCount('transactions', 3);
         $this->assertDatabaseHas('audit_events', ['route_name' => 'pos.summary.reset']);

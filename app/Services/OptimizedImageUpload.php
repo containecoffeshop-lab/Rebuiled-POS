@@ -84,7 +84,7 @@ class OptimizedImageUpload
 
         $path = public_path($relativePath);
 
-        if (is_file($path) && ! unlink($path)) {
+        if (is_file($path) && ! @unlink($path)) {
             throw new RuntimeException('File gambar lama tidak dapat dihapus.');
         }
     }

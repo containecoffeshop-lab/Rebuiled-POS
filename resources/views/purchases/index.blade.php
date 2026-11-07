@@ -286,6 +286,8 @@
                         <span class="status-tag {{ $purchase->payment_status === 'paid' ? 'paid' : 'pending' }}">{{ $paymentStatus }}</span>
                     </div>
                 </div>
+                <details class="order-card-details" @if ($errors->any()) open @endif>
+                    <summary class="button button-secondary button-small">Detail dan tindakan pembelian</summary>
                 @if ($purchase->discount > 0)
                     <p class="order-meta">Subtotal Rp{{ number_format($purchase->subtotal, 0, ',', '.') }} · Diskon Rp{{ number_format($purchase->discount, 0, ',', '.') }}</p>
                 @endif
@@ -329,6 +331,7 @@
                         </form>
                     @endif
                 </div>
+                </details>
             </article>
         @endforeach
         @if ($purchases->hasPages())

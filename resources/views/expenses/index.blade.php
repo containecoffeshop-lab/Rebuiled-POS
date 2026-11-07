@@ -229,6 +229,8 @@
                     </div>
                     <span class="status-tag {{ $expense->payment_status === 'paid' ? 'paid' : 'pending' }}">{{ $isNonCash ? 'Non-tunai' : $paymentStatus }}</span>
                 </div>
+                <details class="order-card-details" @if ($errors->any()) open @endif>
+                    <summary class="button button-secondary button-small">Detail dan pembayaran</summary>
                 @if (! $isNonCash && $expense->payments->isNotEmpty())
                     <ul class="order-lines">
                         @foreach ($expense->payments as $payment)
@@ -251,6 +253,7 @@
                         <button class="button button-secondary button-small" type="submit">Catat pembayaran</button>
                     </form>
                 @endif
+                </details>
             </article>
         @endforeach
         @if ($expenses->hasPages())

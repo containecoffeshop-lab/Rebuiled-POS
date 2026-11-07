@@ -72,7 +72,7 @@
     <summary class="button button-secondary button-small">Reset periode ringkasan</summary>
     <form method="POST" action="{{ route('pos.summary.reset') }}" onsubmit="return confirm('Mulai periode ringkasan baru? Statistik sebelumnya tidak akan muncul di ringkasan atau ekspornya. Transaksi, stok, dan laporan tetap tersimpan.')">
         @csrf
-        <p class="cart-hint">Periode dimulai pada detik berikutnya; transaksi pada detik reset tidak dihitung dalam periode baru. Statistik dan ekspor dimulai ulang, tetapi data lama tetap ada di laporan. Pengeluaran bertanggal sebelum periode baru tidak dihitung.</p>
+        <p class="cart-hint">Statistik dan ekspor dimulai ulang sejak reset, tetapi data lama tetap ada di laporan. Pengeluaran bertanggal sebelum periode baru tidak dihitung.</p>
         <label class="field-label" for="summary-reset-confirmation">Ketik RESET untuk mengonfirmasi</label>
         <input class="field" id="summary-reset-confirmation" name="confirmation" pattern="RESET" required autocomplete="off">
         <button class="button button-danger" type="submit">Mulai periode baru</button>
@@ -513,11 +513,14 @@
                         </div>
                         <span class="status-tag">HPP Rp{{ number_format($consumption->cogs_total ?? 0, 0, ',', '.') }}</span>
                     </div>
+                    <details class="order-card-details">
+                        <summary class="button button-secondary button-small">Detail konsumsi</summary>
                     <ul class="order-lines">
                         @foreach ($consumption->details as $detail)
                             <li>{{ $detail->quantity }} × {{ $detail->item_name }}</li>
                         @endforeach
                     </ul>
+                    </details>
                 </article>
             @endforeach
         @endif
@@ -595,7 +598,7 @@
                         <span class="status-tag {{ $hasKitchenItems ? $transaction->kitchen_status : 'paid' }}">{{ $kitchenLabel }}</span>
                     </div>
                 </div>
-                <details class="order-card-details">
+                <details class="order-card-details" @if ($errors->any()) open @endif>
                     <summary class="button button-secondary button-small">Detail dan tindakan pesanan</summary>
                 <ul class="order-lines">
                     @foreach ($transaction->details as $detail)
@@ -917,9 +920,9 @@
                             </details>
                         </td>
                         <td>
-                            <form method="POST" action="{{ route('pos.menus.toggle', $menu) }}">
-                                @csrf @method('PATCH')
-                                <button class="button button-small button-secondary" type="submit">{{ $menu->is_available ? 'Sembunyikan' : 'Tampilkan' }}</button>
+                            <form method="POST" action="{{ route('pos.menus.destroy', $menu) }}" onsubmit="return confirm('Hapus menu ini secara permanen? Resep, varian, foto, dan kaitan promo khusus juga akan dihapus. Menu yang terkait transaksi atau paket tidak dapat dihapus.')">
+                                @csrf @method('DELETE')
+                                <button class="button button-small button-secondary" type="submit">Hapus menu</button>
                             </form>
                         </td>
                     </tr>

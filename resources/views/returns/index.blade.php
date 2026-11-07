@@ -169,6 +169,8 @@
                     </div>
                     <span class="status-tag {{ $return->status === 'confirmed' ? 'paid' : ($return->status === 'cancelled' ? 'cancelled' : 'pending') }}">{{ $statusLabel }}</span>
                 </div>
+                <details class="order-card-details" @if ($errors->any()) open @endif>
+                    <summary class="button button-secondary button-small">Detail dan tindakan retur</summary>
                 <ul class="order-lines">
                     @foreach ($return->details as $detail)
                         <li>{{ $detail->quantity }} × {{ $detail->transactionDetail->item_name }} · {{ $detail->reason }}
@@ -192,6 +194,7 @@
                         </form>
                     </div>
                 @endif
+                </details>
             </article>
         @endforeach
         @if ($returns->hasPages())

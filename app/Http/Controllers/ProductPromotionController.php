@@ -28,6 +28,13 @@ class ProductPromotionController extends Controller
     {
         $data = $this->validated($request);
         $promotion = DB::transaction(function () use ($data): ProductPromotion {
+            if (! empty($data['menu_ids'])) {
+                $menus = Menu::query()->whereIn('id', $data['menu_ids'])->orderBy('id')->lockForUpdate()->get(['id']);
+                if ($menus->count() !== count($data['menu_ids'])) {
+                    throw ValidationException::withMessages(['menu_ids' => 'Menu yang dipilih sudah tidak tersedia. Segarkan halaman lalu coba kembali.']);
+                }
+            }
+
             $promotion = ProductPromotion::create([
                 'name' => $data['name'],
                 'discount_type' => $data['discount_type'],

@@ -13,6 +13,7 @@ use App\Models\ExpenseCategory;
 use App\Models\ExpenseSubcategory;
 use App\Models\Material;
 use App\Models\Menu;
+use App\Models\MenuBundleItem;
 use App\Models\MenuRecipe;
 use App\Models\MenuVariant;
 use App\Models\MenuVariantRecipe;
@@ -20,6 +21,7 @@ use App\Models\ProductVariant;
 use App\Models\StoreSetting;
 use App\Models\Supplier;
 use App\Models\Transaction;
+use App\Models\TransactionDetail;
 use App\Models\Unit;
 use App\Models\User;
 use App\Services\OptimizedImageUpload;
@@ -1140,6 +1142,44 @@ class PosController extends Controller
         $menu->update(['is_available' => ! $menu->is_available]);
 
         return back()->with('success', $menu->is_available ? 'Menu ditampilkan di katalog.' : 'Menu disembunyikan dari katalog.');
+    }
+
+    public function destroyMenu(Menu $menu, OptimizedImageUpload $images): RedirectResponse
+    {
+        $imagePath = DB::transaction(function () use ($menu): ?string {
+            $locked = Menu::query()->lockForUpdate()->findOrFail($menu->id);
+
+            if (TransactionDetail::query()
+                ->where(fn ($query) => $query->where('menu_id', $locked->id)
+                    ->orWhereIn('menu_variant_id', $locked->variants()->select('id')))
+                ->exists()) {
+                throw ValidationException::withMessages(['menu' => 'Menu tidak dapat dihapus karena sudah terkait transaksi atau konsumsi karyawan.']);
+            }
+
+            if ($locked->is_bundle || MenuBundleItem::query()
+                ->where('bundle_menu_id', $locked->id)
+                ->orWhere('component_menu_id', $locked->id)
+                ->exists()) {
+                throw ValidationException::withMessages(['menu' => 'Menu tidak dapat dihapus karena merupakan paket atau masih digunakan dalam paket.']);
+            }
+
+            $imagePath = $locked->image_path;
+            $locked->delete();
+
+            return $imagePath;
+        }, attempts: 3);
+
+        try {
+            $images->delete($imagePath);
+        } catch (\RuntimeException $exception) {
+            report($exception);
+
+            return redirect()->route('pos.index', ['module' => 'menu'])
+                ->withErrors(['menu' => 'Menu sudah dihapus, tetapi foto gagal dihapus dari server. Hubungi pengelola untuk membersihkan file '.$imagePath.'.']);
+        }
+
+        return redirect()->route('pos.index', ['module' => 'menu'])
+            ->with('success', 'Menu berhasil dihapus permanen.');
     }
 
     private function assertMenuBarcodeAvailable(?string $barcode): void

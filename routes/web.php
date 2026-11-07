@@ -140,6 +140,7 @@ Route::middleware(['auth', 'active', 'module.access', 'audit.write'])->prefix('k
     Route::patch('/menu/{menu}/varian/{variant}/status', [PosController::class, 'toggleMenuVariant'])->middleware('role:manager')->name('menus.variants.toggle');
     Route::delete('/menu/{menu}/varian/{variant}', [PosController::class, 'destroyMenuVariant'])->middleware('role:manager')->name('menus.variants.destroy');
     Route::patch('/menu/{menu}', [PosController::class, 'updateMenu'])->middleware('role:manager')->name('menus.update');
+    Route::delete('/menu/{menu}', [PosController::class, 'destroyMenu'])->middleware('role:manager')->name('menus.destroy');
     Route::patch('/menu/{menu}/ketersediaan', [PosController::class, 'toggleMenu'])->middleware('role:manager')->name('menus.toggle');
     Route::post('/konsumsi-karyawan', [PosController::class, 'storeEmployeeConsumption'])->name('employee-consumptions.store');
     Route::post('/transaksi', [OrderController::class, 'storePos'])->name('orders.store');

@@ -91,6 +91,13 @@ document.querySelectorAll('body[data-staff-workspace] main form').forEach((form)
     details.append(summary, form);
 });
 
+window.addEventListener('hashchange', () => {
+    const target = location.hash ? document.getElementById(location.hash.slice(1)) : null;
+    if (!target) return;
+    target.closest('.feature-disclosure')?.setAttribute('open', '');
+    target.querySelectorAll('.feature-disclosure').forEach((details) => { details.open = true; });
+});
+
 document.querySelectorAll('details > summary').forEach((summary) => {
     if (summary.querySelector('.details-chevron')) return;
     const chevron = document.createElement('ion-icon');

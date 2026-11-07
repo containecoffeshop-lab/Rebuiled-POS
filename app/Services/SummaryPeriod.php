@@ -26,7 +26,23 @@ class SummaryPeriod
     public function timestamp(EloquentBuilder|QueryBuilder $query, string $column): void
     {
         if ($start = $this->start()) {
-            $query->where($column, '>=', $start);
+            if (! array_key_exists('transaction_id', $this->period) || ! array_key_exists('paid_at_start_ids', $this->period)) {
+                $query->where($column, '>=', $start);
+
+                return;
+            }
+            $paid = str_ends_with($column, 'paid_at');
+            $query->where(function ($query) use ($column, $start, $paid): void {
+                $query->where($column, '>', $start)
+                    ->orWhere(function ($query) use ($column, $start, $paid): void {
+                        $query->where($column, '=', $start);
+                        if ($paid) {
+                            $query->whereNotIn('transactions.id', $this->period['paid_at_start_ids']);
+                        } else {
+                            $query->where('transactions.id', '>', $this->period['transaction_id']);
+                        }
+                    });
+            });
         }
     }
 
@@ -41,8 +57,11 @@ class SummaryPeriod
     public static function reset(): void
     {
         DB::transaction(function (): void {
+            $start = now()->startOfSecond();
             $period = [
-                'start' => now()->addSecond()->startOfSecond()->toDateTimeString(),
+                'start' => $start->toDateTimeString(),
+                'transaction_id' => (int) DB::table('transactions')->max('id'),
+                'paid_at_start_ids' => DB::table('transactions')->where('status', 'paid')->where('paid_at', $start)->pluck('id')->all(),
                 'expenses_id' => (int) DB::table('expenses')->max('id'),
                 'expense_payments_id' => (int) DB::table('expense_payments')->max('id'),
             ];
