@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\ModuleAccess;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,20 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    public function updatePermissions(Request $request, User $user): RedirectResponse
+    {
+        $data = $request->validate([
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['string', 'distinct', Rule::in(array_keys(ModuleAccess::MODULES))],
+        ]);
+        if ($user->role !== 'cashier') {
+            throw ValidationException::withMessages(['permissions' => 'Hak akses modul hanya dapat diubah untuk akun kasir.']);
+        }
+        $user->update(['module_permissions' => array_values($data['permissions'] ?? [])]);
+
+        return back()->with('success', 'Akses modul berhasil disimpan.');
+    }
+
     public function index(Request $request): View
     {
         $filters = $request->validate(['search' => ['nullable', 'string', 'max:120']]);

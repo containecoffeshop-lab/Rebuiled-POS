@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Material;
+use App\Models\User;
+use App\Services\ModuleAccess;
 use App\Services\PosNotificationService;
 use App\Services\RecipeInventory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
@@ -40,10 +43,10 @@ class PosNotificationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $notifications = $user->notifications()->latest()->limit(20)->get();
+        $notifications = $this->visibleNotifications($user)->latest()->limit(20)->get();
 
         return response()->json([
-            'unread_count' => $user->unreadNotifications()->count(),
+            'unread_count' => $this->visibleNotifications($user)->whereNull('read_at')->count(),
             'notifications' => $notifications->map(fn (DatabaseNotification $notification): array => [
                 'id' => $notification->id,
                 'title' => $notification->data['title'] ?? 'Pembaruan POS',
@@ -57,16 +60,38 @@ class PosNotificationController extends Controller
 
     public function markRead(Request $request, string $notificationId): JsonResponse
     {
-        $notification = $request->user()->notifications()->whereKey($notificationId)->firstOrFail();
+        $notification = $this->visibleNotifications($request->user())->whereKey($notificationId)->firstOrFail();
         $notification->markAsRead();
 
-        return response()->json(['unread_count' => $request->user()->unreadNotifications()->count()]);
+        return response()->json(['unread_count' => $this->visibleNotifications($request->user())->whereNull('read_at')->count()]);
     }
 
     public function markAllRead(Request $request): JsonResponse
     {
-        $request->user()->unreadNotifications()->update(['read_at' => now()]);
+        $this->visibleNotifications($request->user())->whereNull('read_at')->update(['read_at' => now()]);
 
         return response()->json(['unread_count' => 0]);
+    }
+
+    private function visibleNotifications(User $user): MorphMany
+    {
+        $query = $user->notifications();
+        if ($user->role === 'manager') {
+            return $query;
+        }
+        $categories = [];
+        if (ModuleAccess::allows($user, 'pesanan')) {
+            array_push($categories, 'orders', 'kitchen', 'sales');
+        } elseif (ModuleAccess::allows($user, 'kasir')) {
+            $categories[] = 'sales';
+        }
+        if (ModuleAccess::allows($user, 'kasir') || ModuleAccess::allows($user, 'cycle_count')) {
+            $categories[] = 'shifts';
+        }
+        if (ModuleAccess::allows($user, 'stok')) {
+            $categories[] = 'stock';
+        }
+
+        return $query->whereIn('data->category', $categories);
     }
 }

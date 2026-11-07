@@ -119,4 +119,17 @@ class CycleCountController extends Controller
 
         return back()->with('success', 'Tugas disetujui dan selisih diterapkan ke stok terkini.');
     }
+
+    public function returnForRecount(CycleCountTask $task): RedirectResponse
+    {
+        DB::transaction(function () use ($task): void {
+            $locked = CycleCountTask::query()->lockForUpdate()->findOrFail($task->id);
+            if ($locked->status !== 'review') {
+                throw ValidationException::withMessages(['task' => 'Tugas tidak menunggu persetujuan.']);
+            }
+            $locked->update(['status' => 'pending', 'counted_by' => null, 'cashier_shift_id' => null, 'counted_at' => null]);
+        }, attempts: 3);
+
+        return back()->with('success', 'Tugas dikembalikan untuk dihitung ulang.');
+    }
 }

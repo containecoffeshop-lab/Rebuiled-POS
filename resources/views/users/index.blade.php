@@ -99,6 +99,19 @@
                             </details>
                         </td>
                         <td>
+                            @if ($user->role === 'cashier')
+                                <details>
+                                    <summary class="nav-link" style="padding:5px 0;cursor:pointer">Akses modul</summary>
+                                    <form class="pos-order-form" method="POST" action="{{ route('pos.users.permissions', $user) }}">
+                                        @csrf @method('PUT')
+                                        <p class="cart-hint">Akses berlaku untuk seluruh tindakan modul. Pengguna dan pengaturan toko selalu khusus pengelola.</p>
+                                        @foreach (\App\Services\ModuleAccess::MODULES as $key => $label)
+                                            <label class="field-label"><input type="checkbox" name="permissions[]" value="{{ $key }}" @checked(in_array($key, $user->module_permissions ?? \App\Services\ModuleAccess::DEFAULTS, true))> {{ $label }}</label>
+                                        @endforeach
+                                        <button class="button button-small" type="submit">Simpan akses</button>
+                                    </form>
+                                </details>
+                            @endif
                             @if (! $user->is(auth()->user()))
                                 <form method="POST" action="{{ route('pos.users.toggle', $user) }}" onsubmit="return confirm('{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan kembali' }} akun {{ $user->name }}?')">
                                     @csrf @method('PATCH')

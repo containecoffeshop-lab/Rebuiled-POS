@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureActiveUser;
+use App\Http\Middleware\EnsureModuleAccess;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\ExpireDailySession;
 use App\Http\Middleware\RecordAuditEvent;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureActiveUser::class,
             'audit.write' => RecordAuditEvent::class,
             'role' => EnsureRole::class,
+            'module.access' => EnsureModuleAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

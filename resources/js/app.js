@@ -760,7 +760,7 @@ document.querySelectorAll('[data-pos-workspace]').forEach((workspace) => {
     const allowedModules = new Set(modules.map((module) => module.dataset.posModule));
     const defaultModule = allowedModules.has(workspace.dataset.defaultModule)
         ? workspace.dataset.defaultModule
-        : 'kasir';
+        : (allowedModules.has('kasir') ? 'kasir' : modules[0]?.dataset.posModule);
 
     const selectModule = (name) => {
         const requestedModule = name === 'dashboard' ? 'ringkasan' : name;

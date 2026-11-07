@@ -3,6 +3,7 @@
 @section('title', 'Kasir')
 
 @section('content')
+@php($canModule = fn ($module) => \App\Services\ModuleAccess::allows(auth()->user(), $module))
 <div class="dashboard-head">
     <div>
         <p class="eyebrow" style="color:#65806c;margin-bottom:5px">Ruang kerja</p>
@@ -15,30 +16,17 @@
     <aside class="pos-sidebar" aria-label="Navigasi modul">
         <button class="button button-secondary pos-sidebar-toggle" type="button" data-sidebar-toggle aria-expanded="true" aria-label="Minimalkan navigasi"><x-icon name="chevron-back-outline" /><x-icon name="chevron-forward-outline" /><span data-sidebar-toggle-label>Minimalkan</span></button>
         <nav class="pos-sidebar-nav">
-            <a class="pos-sidebar-link" href="{{ route('pos.cycle-counts.index') }}" title="Cycle count"><x-icon name="clipboard-outline" /><span>Cycle count</span></a>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="dashboard" title="Dashboard" aria-label="Dashboard"><x-icon name="home-outline" /><span>Dashboard</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="ringkasan" title="Ringkasan" aria-label="Ringkasan"><x-icon name="stats-chart-outline" /><span>Ringkasan</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="kasir" title="Kasir" aria-label="Kasir"><x-icon name="cash-outline" /><span>Kasir</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="konsumsi" title="Konsumsi karyawan" aria-label="Konsumsi karyawan"><x-icon name="cafe-outline" /><span>Konsumsi karyawan</span></button>
-            <button type="button" class="pos-sidebar-link" data-pos-module-link="pesanan" title="Pesanan" aria-label="Pesanan"><x-icon name="receipt-outline" /><span>Pesanan</span></button>
+            @if ($canModule('cycle_count'))<a class="pos-sidebar-link" href="{{ route('pos.cycle-counts.index') }}"><x-icon name="clipboard-outline" /><span>Cycle count</span></a>@endif
+            @if ($canModule('ringkasan'))<button type="button" class="pos-sidebar-link" data-pos-module-link="dashboard" title="Dashboard" aria-label="Dashboard"><x-icon name="home-outline" /><span>Dashboard</span></button>@endif
+            @foreach (['ringkasan' => ['Ringkasan', 'stats-chart-outline'], 'kasir' => ['Kasir', 'cash-outline'], 'konsumsi' => ['Konsumsi karyawan', 'cafe-outline'], 'pesanan' => ['Pesanan', 'receipt-outline'], 'menu' => ['Menu & HPP', 'restaurant-outline'], 'stok' => ['Stok bahan', 'cube-outline'], 'meja' => ['Meja & QR', 'qr-code-outline'], 'kupon' => ['Kupon', 'pricetag-outline'], 'pelanggan' => ['Pelanggan', 'people-outline']] as $module => [$label, $icon])
+                @if ($canModule($module))<button type="button" class="pos-sidebar-link" data-pos-module-link="{{ $module }}" title="{{ $label }}" aria-label="{{ $label }}"><x-icon :name="$icon" /><span>{{ $label }}</span></button>@endif
+            @endforeach
+            @foreach (['retur' => ['pos.returns.index', 'Retur', 'return-up-back-outline'], 'produk' => ['pos.products.index', 'Produk eceran', 'bag-handle-outline'], 'pembelian' => ['pos.purchases.index', 'Pembelian', 'cart-outline'], 'pengeluaran' => ['pos.expenses.index', 'Pengeluaran', 'wallet-outline'], 'laporan' => ['pos.reports.index', 'Laporan', 'bar-chart-outline'], 'promosi' => ['pos.promotions.index', 'Promo menu', 'sparkles-outline'], 'paket' => ['pos.bundles.index', 'Paket menu', 'layers-outline'], 'stock_take' => ['pos.stock-takes.index', 'Stok opname', 'clipboard-outline'], 'stock_audit' => ['pos.stock-audits.index', 'Audit stok', 'clipboard-outline'], 'barcode' => ['pos.barcode-templates.index', 'Cetak barcode', 'barcode-outline'], 'audit' => ['pos.audit.index', 'Audit', 'time-outline']] as $module => [$routeName, $label, $icon])
+                @if ($canModule($module))<a class="pos-sidebar-link" href="{{ route($routeName) }}" title="{{ $label }}"><x-icon :name="$icon" /><span>{{ $label }}</span></a>@endif
+            @endforeach
             @if (auth()->user()->role === 'manager')
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="menu" title="Menu" aria-label="Menu dan HPP"><x-icon name="restaurant-outline" /><span>Menu & HPP</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="stok" title="Stok" aria-label="Stok bahan"><x-icon name="cube-outline" /><span>Stok bahan</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="meja" title="Meja" aria-label="Meja dan QR"><x-icon name="qr-code-outline" /><span>Meja & QR</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="kupon" title="Kupon" aria-label="Kupon"><x-icon name="pricetag-outline" /><span>Kupon</span></button>
-                <button type="button" class="pos-sidebar-link" data-pos-module-link="pelanggan" title="Pelanggan" aria-label="Pelanggan"><x-icon name="people-outline" /><span>Pelanggan</span></button>
-                <a class="pos-sidebar-link" href="{{ route('pos.returns.index') }}" title="Retur" aria-label="Retur penjualan"><x-icon name="return-up-back-outline" /><span>Retur</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.products.index') }}" title="Produk eceran" aria-label="Produk eceran"><x-icon name="bag-handle-outline" /><span>Produk eceran</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.purchases.index') }}" title="Pembelian" aria-label="Pembelian"><x-icon name="cart-outline" /><span>Pembelian</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.expenses.index') }}" title="Pengeluaran" aria-label="Pengeluaran"><x-icon name="wallet-outline" /><span>Pengeluaran</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.reports.index') }}" title="Laporan" aria-label="Laporan"><x-icon name="bar-chart-outline" /><span>Laporan</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.promotions.index') }}" title="Promo menu" aria-label="Promo menu"><x-icon name="sparkles-outline" /><span>Promo menu</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.bundles.index') }}" title="Paket menu" aria-label="Paket menu"><x-icon name="layers-outline" /><span>Paket menu</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.settings.index') }}" title="Pengaturan" aria-label="Pengaturan toko"><x-icon name="settings-outline" /><span>Pengaturan toko</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.stock-takes.index') }}" title="Stok opname" aria-label="Stok opname"><x-icon name="clipboard-outline" /><span>Stok opname</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.barcode-templates.index') }}" title="Cetak barcode" aria-label="Cetak barcode"><x-icon name="barcode-outline" /><span>Cetak barcode</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.users.index') }}" title="Pengguna" aria-label="Pengguna"><x-icon name="person-outline" /><span>Pengguna</span></a>
-                <a class="pos-sidebar-link" href="{{ route('pos.audit.index') }}" title="Audit" aria-label="Audit aktivitas"><x-icon name="time-outline" /><span>Audit</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.settings.index') }}"><x-icon name="settings-outline" /><span>Pengaturan toko</span></a>
+                <a class="pos-sidebar-link" href="{{ route('pos.users.index') }}"><x-icon name="person-outline" /><span>Pengguna</span></a>
             @endif
         </nav>
     </aside>
@@ -49,12 +37,14 @@
         <span>{{ auth()->user()->name }}</span>
     </div>
     <div class="pos-toolbar-actions">
-        <button class="button button-secondary" type="button" data-dashboard-toggle>Dashboard</button>
-        <button class="button" type="button" data-pos-module-link="kasir" aria-label="Buka kasir">Buka kasir</button>
+        @if ($canModule('ringkasan'))<button class="button button-secondary" type="button" data-dashboard-toggle>Dashboard</button>@endif
+        @if ($canModule('kasir'))<button class="button" type="button" data-pos-module-link="kasir" aria-label="Buka kasir">Buka kasir</button>@endif
+        @if ($canModule('pesanan'))
         <button class="button button-secondary kitchen-shortcut" type="button" data-pos-module-link="pesanan" aria-label="Pesanan masuk" title="Pesanan masuk">
             <x-icon name="receipt-outline" />
             <span>Pesanan</span><span class="kitchen-badge" data-pending-order-badge @if ($summary['awaiting_payment'] < 1) hidden @endif>{{ $summary['awaiting_payment'] }}</span>
         </button>
+        @endif
         <button class="button button-secondary printer-status-button" type="button" data-printer-dialog-open aria-haspopup="dialog" aria-controls="printer-dialog" aria-label="Status printer">
             <x-icon name="bluetooth-outline" class="bluetooth-icon" />
             <span class="printer-status-dot" data-printer-status-dot></span>
@@ -62,6 +52,7 @@
         <form method="POST" action="{{ route('logout') }}">@csrf<button class="button button-secondary" type="submit">Keluar</button></form>
     </div>
 </div>
+@if ($canModule('ringkasan'))
 <div class="pos-module" data-pos-module="ringkasan">
     <form method="GET" action="{{ route('pos.index') }}" class="filter-row" style="justify-content:end;margin:12px 0">
         <input type="hidden" name="module" value="ringkasan">
@@ -172,6 +163,8 @@
 
 </div>
 
+@endif
+@if ($canModule('kasir'))
 <section class="panel" id="buat-transaksi" data-pos-module="kasir">
     <section class="panel shift-panel">
         <div class="shift-indicator">
@@ -417,6 +410,8 @@
     @endif
 </section>
 
+@endif
+@if ($canModule('konsumsi'))
 <section class="panel" id="konsumsi-karyawan" data-pos-module="konsumsi" data-employee-consumption>
     <div class="panel-head">
         <div><h2>Konsumsi karyawan</h2><p>Catat minuman tanpa pembayaran. Stok bahan dipotong dan HPP dicatat sebagai biaya konsumsi.</p></div>
@@ -516,6 +511,8 @@
     </div>
 </section>
 
+@endif
+@if ($canModule('pesanan'))
 <section class="panel" id="pesanan" data-pos-module="pesanan">
     <div class="panel-head">
         <div><h2>Pesanan & transaksi</h2><p>Pemesanan pelanggan dan kasir tercatat bersama.</p></div>
@@ -643,7 +640,8 @@
     @endif
 </section>
 
-@if (auth()->user()->role === 'manager')
+@endif
+@if ($canModule('menu'))
 <section class="panel" id="kelola-menu" data-pos-module="menu">
     <div class="panel-head">
         <div><h2>Kelola menu</h2><p>Tambah kategori dan atur ketersediaan menu di katalog pelanggan.</p></div>
@@ -912,6 +910,8 @@
     </div>
 </section>
 
+@endif
+@if ($canModule('stok'))
 <section class="panel" id="kelola-bahan" data-pos-module="stok">
     <div class="panel-head">
         <div><h2>Stok bahan & resep</h2><p>Masukkan bahan, catat stok per batch, lalu hubungkan bahan dengan menu. Stok berkurang saat transaksi dibayar.</p></div>
@@ -1082,6 +1082,8 @@
     </div>
 </section>
 
+@endif
+@if ($canModule('meja'))
 <section class="panel" id="meja" data-pos-module="meja">
     <div class="panel-head">
         <div><h2>Meja & QR</h2><p>Pelanggan yang memindai QR meja akan memesan dengan meja terikat ke sesi.</p></div>
@@ -1124,6 +1126,8 @@
     @endif
 </section>
 
+@endif
+@if ($canModule('kupon'))
 <section class="panel" id="kupon" data-pos-module="kupon">
     <div class="panel-head">
         <div><h2>Kupon diskon</h2><p>Kupon berlaku saat pemesanan dan divalidasi ulang oleh server saat transaksi dibuat.</p></div>
@@ -1197,6 +1201,8 @@
     @endif
 </section>
 
+@endif
+@if ($canModule('pelanggan'))
 <section class="panel" id="pelanggan" data-pos-module="pelanggan">
     <div class="panel-head">
         <div><h2>Pelanggan</h2><p>Profil tersimpan dari nomor telepon; pesanan berikutnya akan dikaitkan ke profil yang sama.</p></div>
