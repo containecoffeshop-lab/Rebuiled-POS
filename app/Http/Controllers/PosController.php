@@ -675,7 +675,7 @@ class PosController extends Controller
             'closing_note' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        DB::transaction(function () use ($request, $data, $notifications): void {
+        $closedShift = DB::transaction(function () use ($request, $data, $notifications): CashierShift {
             $shift = CashierShift::query()
                 ->where('user_id', $request->user()->id)
                 ->whereNull('closed_at')
@@ -723,9 +723,38 @@ class PosController extends Controller
                 route('pos.index', ['module' => 'ringkasan']),
                 'shifts',
             );
+
+            return $closedShift;
         });
 
-        return back()->with('success', 'Shift kasir ditutup.');
+        return redirect()->route('pos.shift.report', $closedShift)->with('success', 'Shift kasir ditutup.');
+    }
+
+    public function shiftReport(Request $request, CashierShift $shift): View
+    {
+        abort_unless($shift->user_id === $request->user()->id && $shift->closed_at !== null, 404);
+
+        $dayStart = $shift->closed_at->copy()->startOfDay();
+        $transactions = $shift->transactions()
+            ->where('transaction_kind', 'sale')
+            ->where('status', 'paid')
+            ->where('paid_at', '>=', $dayStart)
+            ->where('paid_at', '<=', $shift->closed_at)
+            ->orderBy('paid_at')
+            ->orderBy('id')
+            ->get(['id', 'invoice', 'paid_at', 'payment_method', 'grand_total']);
+        $cashSales = (int) $transactions->where('payment_method', 'cash')->sum('grand_total');
+        $transferSales = (int) $transactions->where('payment_method', 'transfer')->sum('grand_total');
+        $totalSales = (int) $transactions->sum('grand_total');
+
+        return view('pos.shift-report', [
+            'shift' => $shift->load('user'),
+            'transactions' => $transactions,
+            'cashSales' => $cashSales,
+            'transferSales' => $transferSales,
+            'totalSales' => $totalSales,
+            'afterStartingCash' => $totalSales - $shift->starting_cash,
+        ]);
     }
 
     public function storeCategory(Request $request): RedirectResponse

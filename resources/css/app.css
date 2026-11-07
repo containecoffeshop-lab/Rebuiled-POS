@@ -972,7 +972,11 @@ body {
     .shell { max-width: none; padding: 0; }
     .receipt-page { width: 72mm; max-width: none; margin: 0; }
     .receipt-card { padding: 3mm; border: 0; border-radius: 0; box-shadow: none; background: #fff; font-size: 10pt; }
+    .shift-report-dialog[open] { position: static; display: block; width: 72mm; max-width: none; max-height: none; overflow: visible; margin: 0; padding: 0; border: 0; box-shadow: none; background: #fff; color: #000; }
+    .shift-report-dialog::backdrop { display: none; }
 }
+
+.shift-report-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 
 @media screen and (prefers-color-scheme: dark) {
     :root {

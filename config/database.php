@@ -44,12 +44,6 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
-        'cfd1' => [
-            'driver' => 'cfd1',
-            'database' => env('D1_BINDING', 'DB'),
-            'prefix' => '',
-        ],
-
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->foreignId('product_promotion_id')->constrained()->cascadeOnDelete();
             $table->foreignId('menu_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
-            $table->unique(['product_promotion_id', 'menu_id']);
+            $table->unique(['product_promotion_id', 'menu_id'], 'promotion_menu_unique');
         });
 
         Schema::create('product_promotion_customers', function (Blueprint $table) {
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->foreignId('product_promotion_id')->constrained()->cascadeOnDelete();
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
-            $table->unique(['product_promotion_id', 'customer_id']);
+            $table->unique(['product_promotion_id', 'customer_id'], 'promotion_customer_unique');
         });
 
         Schema::table('transactions', function (Blueprint $table) {

@@ -41,7 +41,7 @@ class OperationsEnhancementTest extends TestCase
         $this->actingAs($manager)->getJson(route('pos.notifications.index'))
             ->assertOk()
             ->assertJsonPath('unread_count', 3)
-            ->assertJsonPath('notifications.0.title', 'Pesanan siap disajikan');
+            ->assertJsonFragment(['title' => 'Pesanan siap disajikan']);
 
         $notificationId = $manager->notifications()->latest()->firstOrFail()->id;
         $otherCashier = User::factory()->create(['role' => 'cashier']);

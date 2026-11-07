@@ -59,7 +59,7 @@ return new class extends Migration
             $table->string('unit_name', 32);
             $table->decimal('quantity', 12, 3)->unsigned();
             $table->timestamps();
-            $table->unique(['transaction_detail_id', 'material_id']);
+            $table->unique(['transaction_detail_id', 'material_id'], 'transaction_recipe_detail_material_unique');
         });
     }
 

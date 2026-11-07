@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "61c8c58e8fc4c6edc1664f262f40f5bc",
+    "content-hash": "53b5d56b3b7e3cbac1713e68c8850f6c",
     "packages": [
         {
             "name": "brick/math",
@@ -6186,62 +6186,6 @@
             ],
             "time": "2026-04-26T05:33:54+00:00",
             "published-time": "2026-04-26T05:43:38+00:00"
-        },
-        {
-            "name": "workersphp/laravel-bridge",
-            "version": "v0.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/workersphp/laravel-bridge.git",
-                "reference": "383d7b534206247a80449f86c9fae4ee2a5c3637"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/workersphp/laravel-bridge/zipball/383d7b534206247a80449f86c9fae4ee2a5c3637",
-                "reference": "383d7b534206247a80449f86c9fae4ee2a5c3637",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/database": "^11.0|^12.0|^13.0",
-                "illuminate/mail": "^11.0|^12.0|^13.0",
-                "illuminate/support": "^11.0|^12.0|^13.0",
-                "league/flysystem": "^3.0",
-                "php": "^8.2",
-                "symfony/http-kernel": "^7.0||^8.0",
-                "symfony/mailer": "^7.0||^8.0",
-                "symfony/mime": "^7.0||^8.0"
-            },
-            "require-dev": {
-                "orchestra/testbench": "^9.0|^10.0|^11.0",
-                "phpunit/phpunit": "^11.0|^12.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "WorkersPhp\\Cloudflare\\CloudflareServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/polyfill/fileinfo.php"
-                ],
-                "psr-4": {
-                    "WorkersPhp\\Cloudflare\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Cloudflare-native Laravel drivers for Workers PHP: D1 database, KV and Durable Object caches, R2 storage, Queues, broadcasting and mail.",
-            "support": {
-                "issues": "https://github.com/workersphp/laravel-bridge/issues",
-                "source": "https://github.com/workersphp/laravel-bridge/tree/v0.1.0"
-            },
-            "time": "2026-08-14T22:27:41+00:00",
-            "published-time": "2026-08-14T22:49:09+00:00"
         }
     ],
     "packages-dev": [

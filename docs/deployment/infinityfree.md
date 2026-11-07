@@ -1,6 +1,18 @@
 # Persiapan InfinityFree dan backup manual
 
-Dokumen ini untuk persiapan, **bukan bukti aplikasi sudah kompatibel atau aman untuk produksi di InfinityFree**. Jangan masukkan transaksi nyata sampai instalasi staging, keamanan, transaksi database, unggahan, dan pemulihan backup diuji di akun hosting yang dipilih. Jangan mengunggah database lokal atau data pelanggan tanpa keputusan pemilik.
+Dokumen ini untuk persiapan, **bukan bukti aplikasi sudah kompatibel atau aman untuk produksi di InfinityFree**. Jangan masukkan transaksi nyata sampai instalasi staging, keamanan, transaksi database, unggahan, dan pemulihan backup diuji di akun hosting yang dipilih. Paket awal berisi database kosong, tanpa data pelanggan atau transaksi lokal.
+
+## Pemasangan awal paket yang disiapkan
+
+1. Di komputer buka `deployments\infinityfree`. Folder `htdocs` berisi berkas aplikasi siap diunggah; `database\pos-kosong.sql` adalah skema database kosong, bukan backup. File `.htaccess` di dalam `htdocs` dan `htdocs\public` wajib ikut diunggah. Tampilkan file tersembunyi di file manager. Jangan unggah folder `database` paket ke web.
+2. Buat database MySQL **baru dan kosong** di panel InfinityFree. Buka phpMyAdmin, pilih database baru tersebut, lalu pilih **Import** dan unggah `database\pos-kosong.sql`. Pastikan seluruh import berhasil. Jangan impor ke database yang berisi data.
+3. Unggah **isi** folder `htdocs` paket ke folder `htdocs` domain tujuan, dengan struktur folder tetap sama. Gunakan FTP/file manager yang mendukung transfer seluruh file; periksa file tersembunyi dan file yang gagal diunggah. File `public\build\manifest.json`, `vendor\autoload.php`, dan kedua `.htaccess` harus ada. Gunakan folder instalasi kosong, jangan menimpa instalasi lama tanpa backup.
+4. Di `htdocs` server buat `.env` dengan menyalin `.env.production.example` yang disertakan. Isi `APP_URL` HTTPS domain sendiri, serta `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` dari panel hosting; host database bukan selalu `localhost`. Jangan bagikan file atau nilai tersebut. Bila sandi mengandung karakter khusus, gunakan tanda kutip yang sesuai format dotenv. Pertahankan `APP_DEBUG=false`.
+5. Buat `APP_KEY` unik secara lokal dengan menjalankan `php artisan key:generate --show` di proyek, lalu salin hasilnya ke `.env` server. Buat `INITIAL_SETUP_TOKEN` acak panjang, misalnya dengan `php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"`, lalu masukkan ke `.env` server. Jangan kirim keduanya ke chat atau commit ke Git. Simpan `APP_KEY` secara aman dan jangan menggantinya saat memperbarui aplikasi.
+6. Pastikan `storage`, `storage\framework\cache\data`, `storage\framework\sessions`, `storage\framework\views`, `storage\logs`, `bootstrap\cache`, dan `public\uploads` dapat ditulis oleh PHP. Pastikan HTTPS aktif, buka `/admin/pengaturan-awal`, masukkan kode setup, dan buat akun pengelola. Setelah berhasil, hapus nilai `INITIAL_SETUP_TOKEN` dari `.env` server. Jangan membuat file `.env` di folder `public`.
+7. Sebelum memakai data nyata, uji akses dan keamanan sesuai bagian berikut. Jika `/.env`, `/app/`, `/vendor/`, `/storage/logs/laravel.log`, `/database/`, `/public/.env`, atau variasi URL yang relevan dapat menampilkan isi berkas privat, segera hentikan penggunaan dan pindahkan ke hosting yang dapat menempatkan aplikasi di luar document root. Aturan rewrite harus diuji pada server sebenarnya; folder ini bukan bukti keamanan.
+
+Skema dibuat dari 38 migrasi pada MariaDB lokal yang terisolasi, dengan catatan `migrations` dan `setup_state` awal; tidak mencakup akun, menu, transaksi, foto atau logo lokal. Versi database dan konfigurasi pada akun InfinityFree dapat berbeda, sehingga impor dan alur transaksi tetap harus diuji di sana. Bila batas ukuran/jumlah berkas hosting menggagalkan unggahan, jangan menganggap instalasi lengkap; gunakan FTP sesuai kebijakan penyedia atau hosting yang memadai.
 
 ## Batasan dan pemeriksaan awal
 

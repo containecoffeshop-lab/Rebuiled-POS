@@ -598,7 +598,7 @@ class OrderFlowTest extends TestCase
             'payment_method' => 'cash',
         ])->assertRedirect()->assertSessionHasNoErrors();
         $this->assertDatabaseHas('purchases', ['id' => $purchase->id, 'payment_status' => 'paid']);
-        $this->assertSame(10800, $purchase->payments()->sum('amount'));
+        $this->assertSame(10800, (int) $purchase->payments()->sum('amount'));
     }
 
     public function test_supplier_and_purchase_management_requires_cashier_authentication(): void
@@ -661,7 +661,7 @@ class OrderFlowTest extends TestCase
             'description' => 'Retur pembelian '.$purchase->purchase_code.' ('.$return->return_code.')',
         ]);
         $this->assertEquals(1.5, app(RecipeInventory::class)->onHandByMaterial([$material->id])->get($material->id));
-        $this->assertSame(4000, $purchase->payments()->sum('amount'));
+        $this->assertSame(4000, (int) $purchase->payments()->sum('amount'));
         $this->assertDatabaseHas('purchase_returns', ['id' => $return->id, 'status' => 'confirmed']);
     }
 
@@ -750,7 +750,7 @@ class OrderFlowTest extends TestCase
             ->assertRedirect()->assertSessionHasNoErrors();
         $purchase->refresh();
         $this->assertSame('partial', $purchase->payment_status);
-        $this->assertSame(2000, $purchase->payments()->sum('amount'));
+        $this->assertSame(2000, (int) $purchase->payments()->sum('amount'));
 
         $this->actingAs($user)->post(route('pos.purchases.payments.store', $purchase), [
             'paid_at' => today()->toDateString(),
@@ -758,7 +758,7 @@ class OrderFlowTest extends TestCase
             'payment_method' => 'transfer',
         ])->assertRedirect()->assertSessionHasNoErrors();
         $this->assertDatabaseHas('purchases', ['id' => $purchase->id, 'payment_status' => 'paid']);
-        $this->assertSame(5000, $purchase->payments()->sum('amount'));
+        $this->assertSame(5000, (int) $purchase->payments()->sum('amount'));
 
         auth()->logout();
         $this->get(route('pos.purchase-returns.index'))->assertRedirect(route('login'));
@@ -964,7 +964,7 @@ class OrderFlowTest extends TestCase
             'payment_method' => 'cash',
         ])->assertRedirect()->assertSessionHasNoErrors();
         $this->assertDatabaseHas('expenses', ['id' => $expense->id, 'payment_status' => 'paid']);
-        $this->assertSame(100000, $expense->payments()->sum('amount'));
+        $this->assertSame(100000, (int) $expense->payments()->sum('amount'));
 
         $this->actingAs($user)->get(route('pos.expenses.index', [
             'search' => 'INV-LISTRIK',

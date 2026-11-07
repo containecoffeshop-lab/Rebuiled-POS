@@ -32,7 +32,7 @@ return new class extends Migration
             $table->date('replacement_expires_at')->nullable();
             $table->string('reason', 255);
             $table->timestamps();
-            $table->index(['purchase_item_id', 'purchase_return_id']);
+            $table->index(['purchase_item_id', 'purchase_return_id'], 'purchase_return_item_idx');
         });
     }
 

@@ -24,6 +24,8 @@ Saat pertama kali, buat akun pengelola satu kali melalui `/admin/pengaturan-awal
 
 Shift hanya dapat ditutup setelah semua pesanan yang belum dibayar pada shift tersebut dibayar atau dibatalkan. Shift tutup juga menghentikan penerimaan pesanan online sampai shift berikutnya dibuka.
 
+Setelah tutup shift, ringkasan yang dapat dicetak menampilkan penjualan lunas yang tercatat pada shift akun tersebut dan dibayar pada tanggal penutupan, serta total tunai dan transfer dikurangi modal awal shift. Hasil pengurangan ini bukan laba atau saldo kas dan dapat negatif; retur dan pengeluaran tidak dikurangi. Kas diharapkan dan selisih tetap dihitung dari transaksi tunai seluruh shift, termasuk sebelum tengah malam. Pesanan online tercatat pada shift penerima, bukan berdasarkan akun yang menekan tombol pembayaran.
+
 ## Cakupan saat ini
 
 - Katalog menu publik, pencarian/filter kategori, keranjang yang dibuka melalui tombol, serta dialog konfirmasi rincian sebelum pesanan dikirim. Pelanggan dapat menambahkan menu tanpa login; pengiriman tetap menunggu shift kasir aktif.

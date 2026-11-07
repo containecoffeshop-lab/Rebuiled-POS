@@ -120,6 +120,7 @@ Route::middleware(['auth', 'active', 'module.access', 'audit.write'])->prefix('k
     });
     Route::post('/shift/buka', [PosController::class, 'openShift'])->name('shift.open');
     Route::post('/shift/tutup', [PosController::class, 'closeShift'])->name('shift.close');
+    Route::get('/shift/{shift}/ringkasan', [PosController::class, 'shiftReport'])->name('shift.report');
     Route::get('/ringkasan/ekspor', [PosController::class, 'exportSummary'])->middleware('role:manager')->name('summary.export');
     Route::get('/ringkasan/pdf', [PosController::class, 'exportSummaryPdf'])->middleware('role:manager')->name('summary.pdf');
     Route::post('/ringkasan/reset', [PosController::class, 'resetSummary'])->middleware('role:manager')->name('summary.reset');

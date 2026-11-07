@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer(['layouts.app', 'orders.menu', 'pos.index', 'pos.receipt'], function ($view): void {
+        View::composer(['layouts.app', 'orders.menu', 'pos.index', 'pos.receipt', 'pos.shift-report'], function ($view): void {
             $view->with('storeSettings', StoreSetting::query()->pluck('value', 'key'));
         });
     }

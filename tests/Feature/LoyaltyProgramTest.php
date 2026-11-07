@@ -42,14 +42,14 @@ class LoyaltyProgramTest extends TestCase
         $onlineOrder = Transaction::query()->firstOrFail();
         $customer = Customer::query()->where('phone', $phone)->firstOrFail();
         $this->assertSame(0, $onlineOrder->loyalty_points_earned);
-        $this->assertSame(0, $customer->pointEntries()->sum('points'));
+        $this->assertSame(0, (int) $customer->pointEntries()->sum('points'));
 
         $this->actingAs($manager)->patch(route('pos.orders.paid', $onlineOrder), [
             'payment_method' => 'cash',
             'amount_paid' => $onlineOrder->grand_total,
         ])->assertRedirect()->assertSessionHasNoErrors();
         $this->assertSame(2, $onlineOrder->fresh()->loyalty_points_earned);
-        $this->assertSame(2, $customer->pointEntries()->sum('points'));
+        $this->assertSame(2, (int) $customer->pointEntries()->sum('points'));
 
         $quote = $this->actingAs($manager)->postJson(route('pos.loyalty.quote'), [
             'customer_phone' => $phone,
@@ -75,7 +75,7 @@ class LoyaltyProgramTest extends TestCase
         $posSale = Transaction::query()->latest('id')->firstOrFail();
         $this->assertSame(2000, $posSale->loyalty_discount);
         $this->assertSame(2, $posSale->loyalty_points_redeemed);
-        $this->assertSame(0, $customer->pointEntries()->sum('points'));
+        $this->assertSame(0, (int) $customer->pointEntries()->sum('points'));
 
         $this->post(route('pos.returns.store'), [
             'transaction_id' => $onlineOrder->id,
@@ -91,7 +91,7 @@ class LoyaltyProgramTest extends TestCase
         $this->actingAs($manager)->patch(route('pos.returns.confirm', $return))
             ->assertRedirect()->assertSessionHasNoErrors();
 
-        $this->assertSame(-1, $customer->pointEntries()->sum('points'));
+        $this->assertSame(-1, (int) $customer->pointEntries()->sum('points'));
         $this->assertDatabaseHas('loyalty_point_entries', [
             'customer_id' => $customer->id,
             'transaction_id' => $onlineOrder->id,
@@ -113,7 +113,7 @@ class LoyaltyProgramTest extends TestCase
         $replacementReturn = TransactionReturn::query()->latest('id')->firstOrFail();
         $this->actingAs($manager)->patch(route('pos.returns.confirm', $replacementReturn))
             ->assertRedirect()->assertSessionHasNoErrors();
-        $this->assertSame(-2, $customer->pointEntries()->sum('points'));
+        $this->assertSame(-2, (int) $customer->pointEntries()->sum('points'));
         $this->assertDatabaseHas('loyalty_point_entries', [
             'customer_id' => $customer->id,
             'transaction_id' => $onlineOrder->id,
