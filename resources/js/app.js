@@ -828,12 +828,98 @@ document.querySelectorAll('[data-pos-workspace]').forEach((workspace) => {
 
 const notificationCenter = document.querySelector('[data-notifications]');
 if (notificationCenter) {
+    const toolbar = document.querySelector('.pos-workspace .pos-toolbar-actions');
+    if (toolbar) toolbar.prepend(notificationCenter);
     const toggle = notificationCenter.querySelector('[data-notification-toggle]');
     const panel = notificationCenter.querySelector('[data-notification-panel]');
     const list = notificationCenter.querySelector('[data-notification-list]');
     const badge = notificationCenter.querySelector('[data-notification-badge]');
     const readAllButton = notificationCenter.querySelector('[data-notification-read-all]');
+    const soundButton = notificationCenter.querySelector('[data-notification-sound]');
+    const soundStatus = notificationCenter.querySelector('[data-notification-sound-status]');
+    const soundKey = `pos-notification-sound-${notificationCenter.dataset.userId}`;
+    const seenKey = `pos-notification-seen-${notificationCenter.dataset.userId}`;
     let loading = false;
+    let audioContext;
+    let soundEnabled = false;
+    let seen = null;
+    let pendingSounds = 0;
+    try {
+        soundEnabled = localStorage.getItem(soundKey) === 'on';
+        const previous = sessionStorage.getItem(seenKey);
+        if (previous !== null) {
+            const parsed = JSON.parse(previous);
+            if (Array.isArray(parsed)) seen = new Set(parsed);
+        }
+    } catch (error) {
+        console.error('Pengaturan notifikasi tidak dapat dibaca.', error);
+        soundStatus.textContent = 'Penyimpanan browser tidak tersedia; pengaturan tidak dapat diingat.';
+    }
+
+    const soundState = (message) => {
+        soundButton.textContent = soundEnabled ? 'Matikan suara' : 'Aktifkan suara';
+        soundButton.setAttribute('aria-pressed', String(soundEnabled));
+        if (message) soundStatus.textContent = message;
+    };
+
+    const playSound = async (count = 1) => {
+        if (!soundEnabled) return false;
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) throw new Error('Audio tidak didukung browser.');
+            audioContext ||= new AudioContext();
+            if (audioContext.state !== 'running') {
+                await Promise.race([
+                    audioContext.resume(),
+                    new Promise((_, reject) => window.setTimeout(() => reject(new Error('Audio memerlukan interaksi pengguna.')), 1000)),
+                ]);
+            }
+            if (audioContext.state !== 'running') throw new Error('Audio diblokir browser.');
+            for (let index = 0; index < count; index += 1) {
+                const start = audioContext.currentTime + index * 0.4;
+                const oscillator = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, start);
+                gain.gain.setValueAtTime(0.0001, start);
+                gain.gain.exponentialRampToValueAtTime(0.15, start + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+                oscillator.connect(gain);
+                gain.connect(audioContext.destination);
+                oscillator.start(start);
+                oscillator.stop(start + 0.3);
+            }
+            soundState('Suara aktif di tab ini.');
+            return true;
+        } catch (error) {
+            console.error('Suara notifikasi tidak dapat diputar.', error);
+            soundState('Suara diblokir atau tidak didukung. Ketuk halaman, periksa volume, lalu coba lagi.');
+            return false;
+        }
+    };
+
+    soundState(soundEnabled ? 'Suara diaktifkan; ketuk halaman jika browser memblokirnya.' : null);
+    soundButton.addEventListener('click', async () => {
+        soundEnabled = !soundEnabled;
+        try {
+            localStorage.setItem(soundKey, soundEnabled ? 'on' : 'off');
+        } catch (error) {
+            console.error('Pengaturan suara tidak dapat disimpan.', error);
+            soundState('Pengaturan tidak dapat disimpan di browser ini.');
+        }
+        if (soundEnabled) {
+            if (await playSound(Math.max(1, pendingSounds))) pendingSounds = 0;
+        } else {
+            pendingSounds = 0;
+            soundState('Suara dimatikan di perangkat ini.');
+        }
+    });
+
+    document.addEventListener('pointerdown', () => {
+        if (soundEnabled && pendingSounds > 0) {
+            playSound(pendingSounds).then((played) => { if (played) pendingSounds = 0; });
+        }
+    });
 
     const request = async (url, method = 'GET') => {
         const response = await fetch(url, {
@@ -900,6 +986,18 @@ if (notificationCenter) {
         try {
             const data = await request(notificationCenter.dataset.feedUrl);
             if (!Array.isArray(data.notifications)) throw new Error('Daftar notifikasi tidak valid.');
+            const ids = data.notifications.map((notification) => notification.id);
+            const newUnread = seen === null ? [] : data.notifications.filter((notification) => !seen.has(notification.id) && !notification.read_at);
+            seen = new Set([...(seen || []), ...ids].slice(-200));
+            try {
+                sessionStorage.setItem(seenKey, JSON.stringify([...seen]));
+            } catch (error) {
+                console.error('Riwayat notifikasi tab tidak dapat disimpan.', error);
+            }
+            if (soundEnabled && newUnread.length) {
+                pendingSounds += newUnread.length;
+                if (await playSound(pendingSounds)) pendingSounds = 0;
+            }
             updateBadge(data.unread_count);
             renderNotifications(data.notifications);
             notificationCenter.removeAttribute('data-refresh-error');

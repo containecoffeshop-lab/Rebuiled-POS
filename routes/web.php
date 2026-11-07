@@ -54,6 +54,7 @@ Route::middleware(['auth', 'active', 'audit.write'])->prefix('kasir')->name('pos
     Route::patch('/pengguna/{user}/status', [UserController::class, 'toggleActive'])->middleware('role:manager')->name('users.toggle');
     Route::get('/pengaturan-toko', [StoreSettingsController::class, 'index'])->middleware('role:manager')->name('settings.index');
     Route::put('/pengaturan-toko', [StoreSettingsController::class, 'update'])->middleware('role:manager')->name('settings.update');
+    Route::put('/pengaturan-toko/notifikasi', [StoreSettingsController::class, 'updateNotifications'])->middleware('role:manager')->name('settings.notifications.update');
     Route::put('/pengaturan-toko/loyalitas', [StoreSettingsController::class, 'updateLoyalty'])->middleware('role:manager')->name('settings.loyalty.update');
     Route::put('/pengaturan-toko/biaya', [StoreSettingsController::class, 'updateCharges'])->middleware('role:manager')->name('settings.charges.update');
     Route::put('/pengaturan-toko/rekening', [StoreSettingsController::class, 'updateBankAccounts'])->middleware('role:manager')->name('settings.accounts.update');

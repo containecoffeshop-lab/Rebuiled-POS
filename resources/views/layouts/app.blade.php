@@ -22,6 +22,7 @@
             <nav class="nav-links" aria-label="Navigasi utama">
                 @auth
                     <div class="notification-center" data-notifications
+                        data-user-id="{{ auth()->id() }}"
                         data-feed-url="{{ route('pos.notifications.index') }}"
                         data-read-all-url="{{ route('pos.notifications.read-all') }}">
                         <button class="button button-secondary notification-toggle" type="button" data-notification-toggle aria-expanded="false" aria-controls="notification-panel" aria-label="Notifikasi">
@@ -32,6 +33,10 @@
                             <div class="notification-panel-head">
                                 <strong>Notifikasi</strong>
                                 <button class="button button-secondary button-small" type="button" data-notification-read-all>Tandai dibaca</button>
+                            </div>
+                            <div class="notification-panel-head notification-sound-controls">
+                                <button class="button button-secondary button-small" type="button" data-notification-sound>Aktifkan suara</button>
+                                <span class="cart-hint" data-notification-sound-status role="status">Suara belum aktif di perangkat ini.</span>
                             </div>
                             <ul class="notification-list" data-notification-list>
                                 <li class="notification-empty">Memuat notifikasi…</li>

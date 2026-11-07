@@ -9,6 +9,26 @@
 </div>
 
 <section class="panel">
+    <div class="panel-head"><div><h2>Notifikasi per peran</h2><p>Jenis yang dipilih dikirim untuk peristiwa baru. Notifikasi lama tetap tersedia; suara diaktifkan masing-masing perangkat pada lonceng.</p></div></div>
+    <form method="POST" action="{{ route('pos.settings.notifications.update') }}">
+        @csrf @method('PUT')
+        @foreach (\App\Services\PosNotificationService::ROLES as $role => $label)
+            @php
+                $saved = isset($settings['notification_categories_'.$role]) ? json_decode($settings['notification_categories_'.$role], true, flags: JSON_THROW_ON_ERROR) : array_keys(\App\Services\PosNotificationService::CATEGORIES);
+                $selected = old('categories.'.$role, $saved);
+            @endphp
+            <fieldset>
+                <legend>{{ $label }}</legend>
+                @foreach (\App\Services\PosNotificationService::CATEGORIES as $category => $description)
+                    <label class="field-label"><input type="checkbox" name="categories[{{ $role }}][]" value="{{ $category }}" @checked(in_array($category, $selected, true))> {{ $description }}</label>
+                @endforeach
+            </fieldset>
+        @endforeach
+        <button class="button" type="submit">Simpan notifikasi</button>
+    </form>
+</section>
+
+<section class="panel">
     <form class="pos-order-form" method="POST" action="{{ route('pos.settings.update') }}" enctype="multipart/form-data" style="max-width:680px">
         @csrf @method('PUT')
         <div class="field-group">

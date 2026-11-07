@@ -6,14 +6,37 @@ use App\Models\BankAccount;
 use App\Models\StoreCharge;
 use App\Models\StoreSetting;
 use App\Services\OptimizedImageUpload;
+use App\Services\PosNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class StoreSettingsController extends Controller
 {
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'categories' => ['nullable', 'array:manager,cashier'],
+            'categories.manager' => ['nullable', 'array'],
+            'categories.cashier' => ['nullable', 'array'],
+            'categories.*.*' => ['string', Rule::in(array_keys(PosNotificationService::CATEGORIES))],
+        ]);
+
+        DB::transaction(function () use ($data): void {
+            foreach (array_keys(PosNotificationService::ROLES) as $role) {
+                StoreSetting::query()->updateOrCreate(
+                    ['key' => 'notification_categories_'.$role],
+                    ['value' => json_encode(array_values($data['categories'][$role] ?? []), JSON_THROW_ON_ERROR)],
+                );
+            }
+        });
+
+        return back()->with('success', 'Pengaturan notifikasi berhasil disimpan.');
+    }
+
     public function index(): View
     {
         $settings = StoreSetting::query()->pluck('value', 'key');

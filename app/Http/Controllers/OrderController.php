@@ -14,9 +14,9 @@ use App\Models\ProductVariant;
 use App\Models\Transaction;
 use App\Services\CouponCalculator;
 use App\Services\LoyaltyProgram;
+use App\Services\PosNotificationService;
 use App\Services\ProductInventory;
 use App\Services\ProductPromotionCalculator;
-use App\Services\PosNotificationService;
 use App\Services\RecipeInventory;
 use App\Services\TransactionChargeCalculator;
 use Illuminate\Database\Eloquent\Builder;
@@ -265,6 +265,7 @@ class OrderController extends Controller
                 'Pembayaran selesai',
                 'Pesanan '.$locked->invoice.' telah dibayar.',
                 route('pos.orders.receipt', $locked),
+                'sales',
             );
         });
 
@@ -293,6 +294,7 @@ class OrderController extends Controller
                     'Pesanan siap disajikan',
                     'Pesanan '.$locked->invoice.' selesai diproses dapur.',
                     route('pos.index', ['module' => 'pesanan']),
+                    'kitchen',
                 );
             }
         });
@@ -311,6 +313,7 @@ class OrderController extends Controller
                 'Pesanan dibatalkan',
                 'Pesanan '.$locked->invoice.' dibatalkan.',
                 route('pos.index', ['module' => 'pesanan']),
+                'orders',
             );
         });
 
@@ -600,6 +603,7 @@ class OrderController extends Controller
                 $isPos
                     ? route('pos.orders.receipt', $transaction)
                     : route('pos.index', ['module' => 'pesanan']),
+                $isPos ? 'sales' : 'orders',
             );
 
             return $transaction;

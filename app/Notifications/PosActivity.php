@@ -13,6 +13,7 @@ class PosActivity extends Notification
         private readonly string $title,
         private readonly string $message,
         private readonly string $url,
+        private readonly string $category,
     ) {}
 
     public function via(object $notifiable): array
@@ -26,6 +27,7 @@ class PosActivity extends Notification
             'title' => $this->title,
             'message' => $this->message,
             'url' => $this->url,
+            'category' => $this->category,
         ];
     }
 }

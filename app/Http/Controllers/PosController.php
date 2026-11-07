@@ -23,8 +23,8 @@ use App\Models\Transaction;
 use App\Models\Unit;
 use App\Models\User;
 use App\Services\OptimizedImageUpload;
-use App\Services\ProductInventory;
 use App\Services\PosNotificationService;
+use App\Services\ProductInventory;
 use App\Services\PurchaseRecommendation;
 use App\Services\RecipeInventory;
 use Illuminate\Http\JsonResponse;
@@ -628,6 +628,7 @@ class PosController extends Controller
                 'Shift kasir dibuka',
                 'Shift '.$request->user()->name.' dibuka; pemesanan online tersedia.',
                 route('pos.index', ['module' => 'kasir']),
+                'shifts',
             );
         });
 
@@ -687,6 +688,7 @@ class PosController extends Controller
                 'Shift kasir ditutup',
                 'Shift '.$closedShift->user->name.' ditutup dengan selisih kas Rp'.number_format(abs($closedShift->cash_difference), 0, ',', '.').'.',
                 route('pos.index', ['module' => 'ringkasan']),
+                'shifts',
             );
         });
 
